@@ -1,0 +1,8 @@
+MISSION.md
+NOTES.md
+RESOURCES.md
+learning-records/
+.DS_Store
+deploy_skills_learning.sh
+deploy_via_api.py
+push.log
