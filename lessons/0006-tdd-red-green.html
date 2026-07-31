@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 6 课 · TDD：防作弊的红绿循环</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 6 课 · TDD：防作弊的红绿循环</h1>
+<p class="lesson-meta">
+  阶段 2 · 工程内功 ｜ 预计 15 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md">tdd/SKILL.md</a> 不只是"先写测试"——它回答了三个更难的问题：
+  <strong>什么样的测试值得写</strong>（读起来像规格）、<strong>测试写在哪</strong>（预先约定的接缝）、<strong>什么顺序写</strong>（垂直切片，每次一发曳光弹）。
+  防御目标：失控模式三（代码跑不起来 / AI 拿假测试交差）。
+</div>
+
+<h2>一、好测试的唯一标准：像一份规格</h2>
+
+<blockquote>
+  "Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification."<br>
+  （中文：测试通过公共接口验证行为，而不是实现细节。代码可以整个重写，测试不应该跟着变。好的测试读起来像一份规格说明。）
+</blockquote>
+
+<p>例子：测试名 <code>"user can checkout with valid cart"</code>（用户可以用有效购物车结账）——一眼看出系统有什么能力，重构内部实现也不会碎，因为它根本不关心内部结构。</p>
+
+<h2>二、测试写在哪：预先约定的接缝</h2>
+
+<p>第 4 课的 Seam（接缝）在这里兑现了第二个用途：</p>
+
+<blockquote>
+  "Test only at pre-agreed seams. Before writing any test, write down the seams under test and confirm them with the user."<br>
+  （中文：只在预先约定的接缝上测试。写任何测试之前，先写下要测的接缝清单，并与用户确认。）
+</blockquote>
+
+<p>为什么要"预先约定"？——你不可能测完所有东西。先约定接缝，测试火力才会集中到<strong>关键路径和复杂逻辑</strong>上，而不是平均撒到每个边角。注意这又是一道"行动闸门"（第 2 课）：AI 必须先问"公共接口是什么、测哪些接缝？"拿到人类确认才能动笔。</p>
+
+<h2>三、三大反模式（AI 写测试的高发病）</h2>
+
+<table>
+  <tr><th>反模式</th><th>症状</th><th>识别信号</th></tr>
+  <tr>
+    <td><strong>Implementation-coupled</strong><br>实现耦合</td>
+    <td>mock 内部协作者、测私有方法、从旁路验证（比如绕过接口直接查数据库）</td>
+    <td>行为没变、只是重构了一下，测试就碎了</td>
+  </tr>
+  <tr>
+    <td><strong>Tautological</strong><br>同义反复</td>
+    <td>断言用<strong>和被测代码同样的方式</strong>重新算一遍期望值：<code>expect(add(a,b)).toBe(a+b)</code>——恒真，永远不可能不同意代码</td>
+    <td>期望值不是来自独立的真相来源（已知正确的字面量、手工算例、规格）</td>
+  </tr>
+  <tr>
+    <td><strong>Horizontal slicing</strong><br>水平切片</td>
+    <td>先把所有测试一口气写完，再写所有实现——批量测试验证的是<strong>想象中的</strong>行为</td>
+    <td>测的是"东西的形状"而不是用户可见的行为；在理解实现之前就锁死了测试结构</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <span class="label">第 2 站的伏笔在这里收线</span>
+  第 1 课说"AI 是作弊仔，会拿错误实现配必然通过的假测试"。现在你有了精确的病名：那就是 <strong>Tautological（同义反复）</strong>测试——期望值和实现出自同一套逻辑，同错同绿。
+  解药也精确了：<em>期望值必须来自独立的真相来源</em>（Expected values must come from an independent source of truth）+ <em>先红后绿</em>（测试必须先失败过，证明它有能力不同意代码）。
+</div>
+
+<h2>四、循环的三条规则</h2>
+
+<ol>
+  <li><strong>Red before green（先红后绿）</strong>：先写会失败的测试，然后只写<strong>刚好够通过</strong>的代码——不预支未来的测试，不加投机功能（联动第 5 课 Speculative Generality）</li>
+  <li><strong>One slice at a time（一次一片）</strong>：一个接缝、一个测试、一次最小实现。垂直切片，每个测试是一发<strong>tracer bullet（曳光弹）</strong>——根据上一轮学到的东西调整下一发的弹道</li>
+  <li><strong>Refactoring is not part of the loop（重构不在循环内）</strong>：重构属于审查阶段（code-review skill 的事）——红绿循环里只做红→绿，不顺手"优化"</li>
+</ol>
+
+<p>另一个细节：探索代码库时先读 <code>CONTEXT.md</code>（第 3 课的共享语言），让<strong>测试名使用领域词汇</strong>——测试就成了领域规格的可执行版本。skills 之间的咬合又出现了。</p>
+
+<h2>五、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · AI 写了这个测试：<code>expect(calcDiscount(cart)).toBe(cart.total * 0.9)</code>，而实现正是 <code>return cart.total * 0.9</code>。这是哪种反模式？</p>
+  <label>实现耦合：测试碰了内部的私有细节</label>
+  <label data-right="1">同义反复：断言和实现同一套算法逻辑</label>
+  <label>水平切片：一口气先写完所有的测试</label>
+  <label>没有毛病：断言和实现一致才算正确</label>
+  <div class="feedback right">✅ 正确。断言用和实现<strong>相同的公式</strong>重新算期望值——如果公式本身错了（比如该打 8 折写成 9 折），测试照样绿。修复：期望值来自独立来源，比如手工算例：购物车 100 元 → 断言 <code>toBe(90)</code>（一个已知正确的字面量）。</div>
+  <div class="feedback wrong">看断言的<strong>来源</strong>：<code>cart.total * 0.9</code>——和实现是同一个公式。公式错了测试也绿，恒真式，这就是 Tautological（同义反复）。解药：期望值必须来自独立真相来源——手工算好"100 元的购物车应得 90"，断言写死 <code>toBe(90)</code>。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · 重构了模块内部结构（行为完全没变），结果 8 个测试全碎了。按本课诊断，这批测试的病是——</p>
+  <label data-right="1">实现耦合：测的是结构而不是行为</label>
+  <label>同义反复：断言恒真无法发现问题</label>
+  <label>接缝错位：测试写错了公共的接口</label>
+  <label>正常现象：重构后测试就应该更新</label>
+  <div class="feedback right">✅ 正确。源码给的识别信号一字不差："The tell: the test breaks when you refactor but behavior hasn't changed."（信号：重构后行为没变，测试却碎了。）好测试只依赖公共接口——"代码可以整个重写，测试不应该跟着变"。最后一个选项是流传最广的错误直觉。</div>
+  <div class="feedback wrong">源码的识别信号："the test breaks when you refactor but behavior hasn't changed"（行为没变、重构就碎）= Implementation-coupled（实现耦合）。好测试穿过公共接口验证行为，内部怎么重写都不碎。"重构后更新测试是正常的"恰恰是这个反模式最舒适的伪装。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 为什么"先把 20 个测试全写完，再开始写实现"是反模式，明明也是"测试先行"？</p>
+  <label>因为测试太多了，运行速度会太慢</label>
+  <label>因为写测试的时间挤占了实现时间</label>
+  <label data-right="1">因为批量测试验证的是想象的行为</label>
+  <label>因为这样就没办法先红后绿地验证</label>
+  <div class="feedback right">✅ 正确。这是 Horizontal slicing（水平切片）："Bulk tests verify imagined behavior"（批量测试验证的是想象中的行为）——在理解实现之前就锁死测试结构，测的是形状不是行为。正确姿势：垂直切片，一测试→一实现→循环，每发曳光弹根据上一发的落点修正。（最后一个选项有迷惑性：技术上每个测试仍可以先红后绿，问题不在红绿，在"提前锁死"。）</div>
+  <div class="feedback wrong">TDD ≠ "测试先行"就够了。一口气写 20 个测试 = Horizontal slicing：那 20 个测试验证的是你<strong>想象中</strong>的行为，在理解实现之前就锁死了测试结构。正确姿势是垂直切片：一个测试→一次实现→根据学到的调整下一个测试（曳光弹）。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q4 · 红绿循环进行中，AI 发现刚写完的函数命名不佳、还有一段重复代码，提议"顺手重构一下"。按循环规则，正确做法是——</p>
+  <label>同意，趁热打铁重构成本是最低的</label>
+  <label>同意，但是要求先补一个测试兜底</label>
+  <label data-right="1">拒绝，重构属于审查阶段不属于循环</label>
+  <label>拒绝，这两个问题根本不需要重构</label>
+  <div class="feedback right">✅ 正确。源码第三条规则："Refactoring is not part of the loop. It belongs to the review stage."（重构不属于循环，它属于审查阶段。）红绿循环只做红→绿，重构留给 code-review（第 5 课的双轴审查会抓住 Mysterious Name 和 Duplicated Code）。职责分离，每个阶段只干一件事——"顺手"是纪律的天敌。</div>
+  <div class="feedback wrong">循环规则第三条原文："Refactoring is not part of the loop. It belongs to the review stage (see the code-review skill)."——红绿循环内只做红→绿；命名和重复代码的问题留给审查阶段（第 5 课的 Mysterious Name、Duplicated Code 正是为此待命）。阶段纪律的意义：每个阶段一件事，"顺手"会让循环失焦。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  三个反模式名字（实现耦合 / 同义反复 / 水平切片）+ 一条金标准（期望值来自独立真相来源）。
+  下次让 AI 写测试，验收清单就是这四条。
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，10 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md">tdd/SKILL.md</a> 全文很短（37 行），另有两个进阶文件 <code>tests.md</code>（测试实例）和 <code>mocking.md</code>（mock 准则）在同目录，选读。</li>
+  <li><strong>下一课</strong>：第 7 课《工作流主干道（上）：to-spec 与 to-tickets》。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 6 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

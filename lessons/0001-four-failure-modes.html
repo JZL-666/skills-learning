@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 1 课 · 这套 skills 到底在防什么？</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 1 课 · 这套 skills 到底在防什么？</h1>
+<p class="lesson-meta">
+  阶段 0 · 世界观 ｜ 预计 10 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  Matt 的几十个 skill 不是散装工具，而是对 <strong>4 种 AI 失控模式</strong>的 4 套防御。
+  记住这张"病症 → 药方"地图，你就拥有了整个仓库的目录索引——以后看任何一个 skill，先问"它在防哪种失控"。
+</div>
+
+<h2>一、换个视角：你其实每天都在见这 4 种失控</h2>
+
+<p>你是 Agent 工程师，先用你的主场语言来说：任何 Agent（包括给你打工的 coding agent）失控，逃不出这 4 种模式。
+Matt 在 <a href="https://github.com/mattpocock/skills/blob/main/README.md">README.md</a> 里逐一点名，且每一种都引用了一本经典名著背书：</p>
+
+<table>
+  <tr><th>#</th><th>失控模式（README 原文）</th><th>你在 Agent 工作中见过的样子</th><th>药方 skill</th><th>背书经典</th></tr>
+  <tr>
+    <td>1</td>
+    <td><strong>做的不是我想要的</strong><br>The Agent Didn't Do What I Want</td>
+    <td>需求只说了一句话，Agent 自行脑补了一堆你没要的功能</td>
+    <td><code>grill-me</code> / <code>grill-with-docs</code><br>（动工前让 AI 反过来拷问你）</td>
+    <td>《The Pragmatic Programmer》：<br>"没有人确切知道自己想要什么"</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>啰嗦、绕弯子</strong><br>The Agent Is Way Too Verbose</td>
+    <td>没有统一术语，Agent 用 20 个词描述 1 个词能说清的概念，token 燃烧</td>
+    <td><code>grill-with-docs</code> 顺手产出的<br>共享语言文档（CONTEXT.md）</td>
+    <td>《Domain-Driven Design》：<br>Ubiquitous Language（共享语言）</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><strong>代码跑不起来</strong><br>The Code Doesn't Work</td>
+    <td>Agent 没有反馈回路，蒙眼输出；写完测试"自证通过"作弊交差</td>
+    <td><code>tdd</code>（红-绿-重构）<br><code>diagnosing-bugs</code></td>
+    <td>《The Pragmatic Programmer》：<br>"反馈速率就是你的速度上限"</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><strong>堆出一坨泥球</strong><br>We Built A Ball Of Mud</td>
+    <td>Agent 一周产出三个月的代码量，熵增速度也是三个月量级，架构迅速腐烂</td>
+    <td><code>improve-codebase-architecture</code><br><code>codebase-design</code>（深模组）</td>
+    <td>《A Philosophy of Software Design》：<br>"最好的模块是深的"</td>
+  </tr>
+</table>
+
+<blockquote>
+  "Because agents can radically speed up coding, they also accelerate software entropy."<br>
+  （中文：正因为 agent 能极大加速写代码，它们也同步加速了软件的熵增。）
+  <span class="src">—— Matt Pocock, <a href="https://github.com/mattpocock/skills/blob/main/README.md">README.md</a> 第 170 行（失控模式 #4）</span>
+</blockquote>
+
+<h2>二、给"造 Agent 的你"的一层加餐</h2>
+
+<p>普通学习者看到的是"4 个工具"；你应该看到的是一个<strong>设计模式</strong>：</p>
+
+<div class="callout">
+  <span class="label">双重身份视角</span>
+  Matt 造 skill 的思路 = 先枚举 AI 的失控模式，再针对每种失控设计最小防御。
+  这恰好就是你设计自己 Agent 时该做的事：<em>先问"我的 Agent 会怎么失控"，再决定 prompt / 工作流里放什么约束。</em>
+  整个仓库对你而言是一本"失控模式防御手册"的范例集。
+</div>
+
+<h2>三、随堂测验（即时反馈）</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 你让 coding agent "做一个用户登录功能"，它自作主张加了短信验证码、第三方 OAuth、找回密码三个你没要的模块。这属于哪种失控？</p>
+  <label>失控模式一：做的不是我想要的</label>
+  <label data-right="1">等等——先别选，把四个都看完再回来（这是干扰项吗？）</label>
+  <label>失控模式四：堆出一坨泥球球</label>
+  <label>失控模式三：代码跑就不起来</label>
+  <div class="feedback right">诚实！其实这题答案是<strong>模式一（misalignment，未对齐）</strong>——出错点在"动工之前"：你们从未对齐过需求边界。选这个选项说明你注意到了：好的判断需要先看全选项。正确防御：动工前先 <code>grill-me</code>。</div>
+  <div class="feedback wrong">你选了模式一？方向完全正确——这就是 misalignment（未对齐），防御手段是动工前 <code>grill-me</code>。（这道题的"正确答案"是个小陷阱，考你会不会先读完所有选项——AI 和人都容易抢答。）</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · Agent 写完功能后自己补了测试，测试全绿，但功能其实是错的（测试是照着错误实现写的）。防御这种"作弊"的核心手段是？</p>
+  <label>写完之后开新会话做 Code Review 检查</label>
+  <label data-right="1">写实现之前先写测试，亲眼看它变红</label>
+  <label>要求它每个函数都写详细注释文档</label>
+  <label>换一个更聪明更强大的模型来写代码</label>
+  <div class="feedback right">✅ 正确。这就是 TDD 红-绿-重构的"先红后绿"：测试先于实现存在并且失败过，AI 就无法拿错误实现反推出必然通过的假测试。第 5 课会深入。</div>
+  <div class="feedback wrong">Code Review 和换模型都有用但防不住这个作弊——测试与实现出自同一次"记忆"，同错同绿。唯一的结构性防御：<strong>实现之前</strong>先写测试并看它失败（红灯）。这是失控模式三的核心药方。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · Matt 认为 AI 时代软件工程基本功（架构、测试、领域建模）的重要性发生了什么变化？</p>
+  <label>下降了，因为模型会替代人类做设计</label>
+  <label>不变了，AI 和工程基本功互不相干</label>
+  <label data-right="1">上升了，因为熵增速度被空前加快</label>
+  <label>难说了，要看模型的更新迭代速度</label>
+  <div class="feedback right">✅ 正确。README 结语："Software engineering fundamentals matter more than ever."——AI 加速写码，也同步加速架构腐烂；只有基本功扎实的人能踩住刹车。这正是你的使命的立论基础。</div>
+  <div class="feedback wrong">再想想 README 的结语："Software engineering fundamentals matter <strong>more than ever</strong>."——AI 加速写码的同时也加速熵增（模式四），所以基本功比以往任何时候都更值钱。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  你现在拥有了整个仓库的"目录索引"：<strong>4 种失控模式 → 4 类药方</strong>。
+  从下一课起，我们每拆一个 skill，第一个问题永远是——"它在防哪种失控？"
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手资料，15 分钟）</strong>：通读 <a href="https://github.com/mattpocock/skills/blob/main/README.md">skills/README.md</a> 的 "Why These Skills Exist" 一节，对照本课表格验证我有没有讲错。</li>
+  <li><strong>下一课预告</strong>：阶段 1 ——《五行字的功力：逐句拆解 grilling》。我们会把 <a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md">grilling/SKILL.md</a> 的每一句话当成 prompt 设计决策来审。</li>
+  <li><strong>随时提问</strong>：我是你的老师（就在编辑器对话框里）。任何一格表格没看懂、任何术语陌生，直接问我，不要硬扛。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 1 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>｜
+  引用以仓库源码为准，视频笔记为二手导读
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

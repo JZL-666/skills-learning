@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 课 · 五行字的功力：逐句拆解 grilling</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 2 课 · 五行字的功力：逐句拆解 grilling</h1>
+<p class="lesson-meta">
+  阶段 1 · 拷问的艺术 ｜ 预计 12 分钟 ｜
+  前置：<a href="./0001-four-failure-modes.html">第 1 课</a> ｜
+  速查：<a href="../reference/glossary.html">术语表</a>
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  把 <code>grilling</code> 的正文（防御<strong>失控模式一</strong>的全部武器）当成 <strong>5 个 prompt 设计决策</strong>来读。
+  读完你会发现：每一句都在堵 AI 的一条具体退路——没有一个字是装饰。
+</div>
+
+<h2>一、先看一手源码（全文仅 4 段）</h2>
+
+<p>这是 <a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md">skills/productivity/grilling/SKILL.md</a> 的完整正文，一字未删：</p>
+
+<pre><code>Interview me relentlessly about every aspect of this until we reach
+a shared understanding. Walk down each branch of the decision tree,
+resolving dependencies between decisions one-by-one. For each
+question, provide your recommended answer.
+
+Ask the questions one at a time, waiting for feedback on each
+question before continuing. Asking multiple questions at once is
+bewildering.
+
+If a *fact* can be found by exploring the environment (filesystem,
+tools, etc.), look it up rather than asking me. The *decisions*,
+though, are mine — put each one to me and wait for my answer.
+
+Do not act on it until I confirm we have reached a shared
+understanding.</code></pre>
+
+<div class="callout">
+  <span class="label">中文对照</span>
+  <p style="margin:.3rem 0">① 就这件事的每个方面无情地拷问我，直到我们达成共识。沿着决策树的每一条分支走下去，按依赖关系逐个解决决策。每个问题都要附上你的建议答案。</p>
+  <p style="margin:.3rem 0">② 问题一次只问一个，等我对每个问题给出反馈后再继续。一次问一堆问题会让人应接不暇（bewildering）。</p>
+  <p style="margin:.3rem 0">③ 如果某个<strong>事实</strong>（fact）能通过探索环境（文件系统、工具等）查到，就自己去查，别来问我。但<strong>决策</strong>（decision）是我的——每一个都要拿来问我，并等我的答复。</p>
+  <p style="margin:.3rem 0">④ 在我确认我们已达成共识之前，不准动手干活。</p>
+</div>
+
+<p>你可能注意到了：<strong>视频里说的"grill-me 五行字"其实住在这里</strong>。
+<code>grill-me/SKILL.md</code> 本体只有一句话——<code>Run a `/grilling` session.</code>（第三节揭晓为什么这么设计。）</p>
+
+<h2>二、逐句拆解：5 个设计决策，5 条被堵死的退路</h2>
+
+<table>
+  <tr><th>#</th><th>原文关键句</th><th>设计决策</th><th>堵死了 AI 的哪条退路</th></tr>
+  <tr>
+    <td>1</td>
+    <td><em>"Walk down each branch of the decision tree, resolving dependencies between decisions one-by-one"</em></td>
+    <td>用"决策树"隐喻强制系统性遍历，且按依赖顺序解决</td>
+    <td>❌ 东一榔头西一棒子地随机提问，问完表层就宣布"我懂了"</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><em>"Ask the questions one at a time... multiple questions at once is bewildering"</em></td>
+    <td>一次一问 + <strong>给了理由</strong>（bewildering，令人应接不暇）</td>
+    <td>❌ 一口气甩 8 个问题，人类挑 3 个回答，剩下 5 个 AI 自行脑补</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><em>"For each question, provide your recommended answer"</em></td>
+    <td>每问必附建议答案</td>
+    <td>❌ 把决策成本全甩给人类（开放题让人瘫痪；有默认选项，人只需确认或否决）</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><em>"If a fact can be found by exploring the environment, look it up rather than asking me. The decisions, though, are mine"</em></td>
+    <td><strong>事实 vs 决策</strong>的权责分割：事实归 AI 查证，决策归人类拍板</td>
+    <td>❌ 两种偷懒都被堵：拿查得到的事实来烦人（"你们用的是 pnpm 吗？"），或替人做主观决策</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><em>"Do not act on it until I confirm we have reached a shared understanding"</em></td>
+    <td>明确的完成标准 + 行动闸门</td>
+    <td>❌ 问了两轮就手痒开写代码（没有闸门，任何 agent 都会滑向"边问边做"）</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <span class="label">Agent 工程师视角</span>
+  注意决策 2 和 3 的写法：不是光下命令，还给了<strong>一句理由</strong>（"bewildering"）。
+  给理由不是写给人看的礼貌——是让 LLM 理解约束的<em>意图</em>，从而在没预料到的边缘场景里也能做出符合意图的泛化。
+  这一招直接可以搬进你自己 Agent 的 system prompt。
+</div>
+
+<h2>三、grill-me 为什么只剩一句话？——Wrapper 模式</h2>
+
+<pre><code>grill-me  (user-invoked, 入口)          grilling  (model-invoked, 引擎)
+┌────────────────────────────┐          ┌────────────────────────────────┐
+│ disable-model-invocation:  │  调用 →  │ 上面那 4 段拷问逻辑全在这里       │
+│   true                     │          │ AI 也可以在合适时机自己调用它     │
+│ 正文: Run a /grilling      │          │ grill-with-docs 也复用它         │
+│       session.             │          │                                │
+└────────────────────────────┘          └────────────────────────────────┘</code></pre>
+
+<p>三个关键点（对照 <a href="https://github.com/mattpocock/skills/blob/main/README.md">README</a> 的 Reference 一节）：</p>
+<ul>
+  <li><strong>user-invoked（用户调用）</strong>：<code>grill-me</code> 加了 <code>disable-model-invocation: true</code>——只有你敲 <code>/grill-me</code> 才触发，AI 不许自作主张启动。它的职责是<em>编排</em>。</li>
+  <li><strong>model-invoked（模型可调用）</strong>：<code>grilling</code> 没加这个开关——AI 察觉"该拷问了"时可以自己调用。它承载<em>可复用的纪律</em>。</li>
+  <li><strong>一处修改，处处生效</strong>：<code>grill-me</code> 和 <code>grill-with-docs</code> 都调用 <code>grilling</code>。拷问逻辑要改进，只改一个文件。</li>
+</ul>
+
+<div class="callout">
+  <span class="label">埋个种子</span>
+  "简单的入口，把复杂逻辑藏在背后"——记住这个形状。阶段 2 讲<strong>深模组</strong>时你会发现：
+  Matt 不只在代码里贯彻这个理念，连 skill 的组织方式本身都是深模组。
+</div>
+
+<h2>四、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 拷问过程中，AI 问你："这个项目的包管理器是 npm 还是 pnpm？"（项目根目录躺着 pnpm-lock.yaml）。按 grilling 的规则，这个行为——</p>
+  <label>合规，包管理器的选择是一个决策</label>
+  <label data-right="1">违规，这是环境里查得到的事实</label>
+  <label>合规，多确认一次总归更加安全</label>
+  <label>违规，它应该把问题合并起来问</label>
+  <div class="feedback right">✅ 正确。锁文件在文件系统里躺着，这是 <strong>fact</strong>——AI 应该自己查（"look it up rather than asking me"）。只有查不到的主观取舍（decision）才允许拿来问你。这条分割线是 grilling 里最精妙的一句。</div>
+  <div class="feedback wrong">再读源码第三段：fact（环境里查得到的）→ AI 自己查；decision（主观取舍）→ 必须问人。锁文件就在文件系统里，属于 fact，问出来就是在浪费你的注意力。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · 为什么每个问题必须附上"建议答案"？（回忆第 1 课的立论 + 本课决策 3）</p>
+  <label>因为建议答案能让 AI 显得更加专业</label>
+  <label>因为人类通常没有能力回答开放问题</label>
+  <label data-right="1">因为它把决策成本降到确认或否决</label>
+  <label>因为这样可以显著减少提问的轮次</label>
+  <div class="feedback right">✅ 正确。开放题("怎么处理断线重连？")让人瘫痪；带默认选项的题("建议指数退避重试 3 次，可以吗？")只需确认或否决。AI 干"找漏洞+给选项"的苦活，人类保留拍板权——决策权始终在人手里，这正是 grilling 防御失控模式一的方式。</div>
+    <div class="feedback wrong">核心在"决策成本"：开放题让人瘫痪，带建议答案的题只需确认/否决。注意这不是让 AI 替你决策——建议只是选项，拍板永远是你。这就是"AI 给选项、人类拍板"的分工。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 你想改进拷问逻辑（比如加一条"每 5 问做一次小结"）。按 wrapper 模式，应该改哪个文件？</p>
+  <label>grill-me，因为它是用户的入口</label>
+  <label data-right="1">grilling，因为它是复用的引擎</label>
+  <label>两个都要改，才能够保持同步</label>
+  <label>新建一个，避免影响原有功能</label>
+  <div class="feedback right">✅ 正确。逻辑全在 <code>grilling</code>（引擎）；<code>grill-me</code> 只是一行转发的入口。改引擎，则 grill-me 和 grill-with-docs 同时受益——这就是"一处修改，处处生效"。</div>
+  <div class="feedback wrong">回看第三节的图：<code>grill-me</code> 正文只有一句 "Run a /grilling session."，不含任何拷问逻辑。逻辑住在 <code>grilling</code> 里，改它一处，所有调用方（grill-me、grill-with-docs）同时生效。</div>
+</div>
+
+<h2>五、实战作业（这次要真上手）</h2>
+
+<div class="win">
+  <span class="label">作业 · 在真实工作中放一枪</span>
+  <p>下次你在 <strong>Qoder 或 Codex</strong> 里要开始一个非琐碎任务（新功能、新 Agent 设计、重构）时，先别下指令，把 grilling 的 4 段英文原文直接粘贴进对话，后面跟上你的任务描述。然后观察并记下：</p>
+  <ol>
+    <li>它问的第几个问题，戳中了一个<strong>你确实没想过</strong>的决策点？</li>
+    <li>它有没有<strong>违规</strong>——查得到的事实拿来问你 / 一次问了多个 / 没给建议答案？</li>
+  </ol>
+  <p>把这两条观察带回来告诉我。这是你第一次以"使用者 + 审计者"双重身份运行一个 skill——审计结果直接决定第 3 课的内容。</p>
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，5 分钟）</strong>：打开 <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md">grill-with-docs/SKILL.md</a> 扫一眼——验证它确实也调用了 grilling，并留意它比 grill-me 多编排了什么（下下课的主角）。</li>
+  <li><strong>速查表已更新</strong>：<a href="../reference/glossary.html">术语表</a>新增 5 个词条（fact vs decision、user-invoked 等）。</li>
+  <li><strong>随时提问</strong>：任何一句拆解你觉得牵强、任何术语陌生，直接在对话里问我。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 2 课 ｜ 上一课：<a href="./0001-four-failure-modes.html">四大失控模式</a> ｜
+  教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

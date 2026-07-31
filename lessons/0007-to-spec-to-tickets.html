@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 课 · 主干道（上）：to-spec 与 to-tickets</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 7 课 · 主干道（上）：to-spec 与 to-tickets</h1>
+<p class="lesson-meta">
+  阶段 3 · 工作流主干道 ｜ 预计 15 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  拷问出的共识如何变成可执行的工作：
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md">to-spec</a>（对话 → 规格书）→
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md">to-tickets</a>（规格书 → 曳光弹任务集）。
+  两个 skill 都是 user-invoked（<code>disable-model-invocation: true</code>）——主干道的每一步由你亲手推进，AI 不许自动滑行。
+</div>
+
+<h2>一、to-spec：对话 → 规格书</h2>
+
+<p>开门第一句就立了规矩（英中对照）：</p>
+
+<blockquote>
+  "Do NOT interview the user — just synthesize what you already know."<br>
+  （中文：不许再采访用户——只把你已经知道的东西综合起来。）
+</blockquote>
+
+<p>为什么禁止再问？——因为拷问在 grill 阶段<strong>已经做完了</strong>。每个 skill 只干一件事：grilling 负责问，to-spec 负责写。职责不混，这就是"小而模组化"。</p>
+
+<p>三步流程：① 探索代码库（用领域词汇、尊重 ADR——第 3 课的文档在这里被消费）→ ② <strong>先草拟测试接缝并和用户确认</strong>（第 4/6 课的 Seam 又出现了，注意这句："The fewer seams across the codebase, the better - the ideal number is one." 中文：全库接缝越少越好——理想数量是一）→ ③ 按模板写规格、发布到 issue tracker。</p>
+
+<p>规格模板六节：<strong>Problem Statement</strong>（用户视角的问题）→ <strong>Solution</strong>（用户视角的方案）→ <strong>User Stories</strong>（超长编号列表："As an &lt;actor&gt;, I want &lt;feature&gt;, so that &lt;benefit&gt;"）→ <strong>Implementation Decisions</strong> → <strong>Testing Decisions</strong> → <strong>Out of Scope</strong>（明确不做什么——防范围蔓延）。</p>
+
+<blockquote>
+  "Do NOT include specific file paths or code snippets. They may end up being outdated very quickly."<br>
+  （中文：不要包含具体文件路径或代码片段——它们可能很快就过时了。）
+</blockquote>
+
+<p>这就是视频笔记说的"spec 禁代码"，现在你知道源码原文了。但注意有个<strong>例外条款</strong>：如果原型（prototype）产出的片段比散文更精确地编码了某个决策（状态机、reducer、schema、类型形状），可以内联——修剪到只留决策密集的部分。纪律不是教条，纪律带着例外条款。</p>
+
+<h2>二、to-tickets：规格书 → 曳光弹任务集</h2>
+
+<p>核心概念：<strong>tracer bullet（曳光弹）垂直切片</strong>。四条切片规则（源码原文直译）：</p>
+
+<ol>
+  <li>每片切出一条<strong>窄但完整</strong>的路径，穿过所有层（schema、API、UI、测试）——垂直，绝不是某一层的水平切片</li>
+  <li>完成的切片<strong>本身就可演示、可验证</strong></li>
+  <li>每片大小刚好塞进<strong>一个全新的 context window</strong>——这条是 AI 时代的原创约束：任务大小的上限不再是"一个人一周"，而是"一个 agent 会话"</li>
+  <li>预备性重构（prefactoring）先行——"Make the change easy, then make the easy change."（中文：先让变更变容易，再做那个容易的变更。——Kent Beck 名言）</li>
+</ol>
+
+<p>每张票据都要声明 <strong>blocking edges（阻塞边）</strong>：哪些票必须先完成。没有阻塞的票可以立刻开工——互不阻塞的票可以<strong>发给多个 agent 并行</strong>（这就是视频里"开发速度翻倍"的机制）。执行时永远打<strong>frontier（前沿）</strong>：所有阻塞者都已完成的那些票。</p>
+
+<div class="callout">
+  <span class="label">垂直 vs 水平：一张对照</span>
+  做电商网站，<strong>水平切法</strong>（AI 天生倾向）：票1 建全部数据库 → 票2 写全部后端 → 票3 画全部前端——前两票完成时<strong>什么都不能演示</strong>，数据库建错了要到票3 才发现。<br>
+  <strong>垂直切法</strong>（to-tickets 强制）：票1 会员登录（含登录的库表+接口+页面+测试）→ 票2 购物车（同样纵贯全层）——每票落地即可打开浏览器验证。<br>
+  眼熟吗？这就是第 6 课 TDD 反模式"Horizontal slicing"放大到任务粒度——<em>同一条纪律在两个尺度上执行</em>。
+</div>
+
+<h2>三、宽重构例外：expand–contract（扩张-收缩）</h2>
+
+<p>垂直切片有一个成文的例外——<strong>wide refactor（宽重构）</strong>：一次机械性修改（重命名一列、改一个共享类型），<strong>爆炸半径（blast radius）</strong>横扫全库，一刀下去几千个调用点全断，任何垂直切片都不可能保持绿灯。处理法是三段式：</p>
+
+<ol>
+  <li><strong>Expand 扩张</strong>：新形式加在旧形式<strong>旁边</strong>，什么都不破坏</li>
+  <li><strong>Migrate 迁移</strong>：调用点按爆炸半径分批搬迁（按包、按目录），每批一张票、都被 expand 阻塞——旧形式还在，所以批与批之间 CI 始终是绿的</li>
+  <li><strong>Contract 收缩</strong>：确认无人再调用旧形式后，删掉它——这张票被<strong>所有</strong>迁移批次阻塞</li>
+</ol>
+
+<h2>四、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 为什么 to-spec 开头就禁止"再采访用户"？</p>
+  <label>因为用户时间宝贵，不应反复打扰</label>
+  <label data-right="1">因为拷问已在上游完成，职责不混</label>
+  <label>因为采访得到的信息往往不太可靠</label>
+  <label>因为规格书只需要综合代码库信息</label>
+  <div class="feedback right">✅ 正确。主干道分工：grilling 负责问出共识，to-spec 只负责把已有共识综合成文。一个 skill 一件事——如果 to-spec 也能问，两个 skill 职责就糊了，这正是 Matt 批评大框架"整条流程绑死"的反面。（这也意味着：共识没吵透就跑 to-spec，产出的规格必然是空洞的——垃圾进垃圾出。）</div>
+  <div class="feedback wrong">关键是<strong>职责分割</strong>：问，是 grilling 的事（上游已完成）；写，是 to-spec 的事。允许 to-spec 再问，两个 skill 的边界就糊了。"小而模组化"不只是尺寸，更是单一职责——每站只干一件事，你才能从任何一站自由进出主干道。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · "每张票大小刚好塞进一个全新的 context window"——这条约束防的是什么？</p>
+  <label>防止票据太多导致跟踪管理的困难</label>
+  <label>防止 agent 计费超支，控制成本</label>
+  <label data-right="1">防止会话中途记忆耗尽而开始瞎猜</label>
+  <label>防止多个 agent 抢占同一张票据</label>
+  <div class="feedback right">✅ 正确。第 1 课的老命题（context window 有限 → 超出记忆范围就瞎猜）在任务粒度上的应用：票的大小以"一个 agent 新会话装得下"为上限，agent 从头到尾都看得见全貌。这是 AI 时代对"任务拆分粒度"的重新定义——不再按人/天估算，按 context window 估算。</div>
+  <div class="feedback wrong">回到第 1 课的根本约束：context window 有限，超出记忆范围 AI 就开始瞎猜。把每张票压到"一个全新会话装得下"，agent 执行全程都能看见任务全貌——这就是把"深模组的 Locality"思想应用到了任务拆分上。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 要把全库 800 处调用的 <code>userId: number</code> 改成 <code>userId: string</code>。按本课，正确的拆票方式是——</p>
+  <label>一张票直接全改，机械修改不必拆分</label>
+  <label>按功能垂直切片，每片改自己那部分</label>
+  <label data-right="1">扩张-收缩三段：并存、分批迁、删旧</label>
+  <label>先改类型定义一张票，剩下修到绿灯</label>
+  <div class="feedback right">✅ 正确。这是典型 wide refactor（宽重构）：一刀下去 800 处全断，垂直切片救不了（每片都无法独立保绿）。expand–contract：① 扩张——加 <code>userIdStr</code> 与旧字段并存；② 迁移——按包/目录分批搬，每批一票、CI 批批保绿；③ 收缩——无人用旧字段后删除，此票被所有迁移批阻塞。</div>
+  <div class="feedback wrong">识别信号：<strong>一次机械修改 + 爆炸半径横扫全库</strong> = wide refactor，是垂直切片的成文例外。直接全改 = 千处红灯不可评审；按功能切 = 每片都会碰到共享类型、谁也绿不了。唯一保绿路径是 expand–contract：新旧并存 → 分批迁移（每批一票）→ 最后删旧。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q4 · to-tickets 产出票据后、发布到 tracker 之前，源码要求必须先做什么？</p>
+  <label>跑一遍完整测试，确保基线是绿的</label>
+  <label>估算每张票据的工时并排出日程表</label>
+  <label data-right="1">向用户展示拆分并追问三个问题</label>
+  <label>为每张票选定负责执行它的 agent</label>
+  <div class="feedback right">✅ 正确。第 4 步 "Quiz the user"：展示编号列表（标题/被谁阻塞/交付什么），并问三个问题——粒度合适吗？阻塞边正确吗？要合并或再拆吗？——迭代到用户批准为止。又是那条主线：AI 出方案，人类拍板；发布（不可逆的对外动作）之前必须过人这一关。</div>
+  <div class="feedback wrong">源码第 4 步 "Quiz the user"（反问用户）：展示拆分（标题/阻塞边/交付物）+ 三连问（粒度？阻塞边？合并还是再拆？），"Iterate until the user approves"（迭代到用户批准）。主线规律：所有不可逆动作（发布）之前，都插着一道人类确认的闸门。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  主干道上半程打通：共识 →（to-spec）→ 规格书 →（to-tickets）→ 带阻塞边的曳光弹票据集。
+  两个新指引词入库：tracer bullet（曳光弹）、expand–contract（扩张-收缩）。
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，10 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md">to-spec/SKILL.md</a> 的 spec-template（六节模板值得抄进你的工作流）+ <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md">to-tickets/SKILL.md</a> 的 vertical-slice-rules。</li>
+  <li><strong>下一课</strong>：第 8 课《主干道（下）：implement——四行字串起全部内功》。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 7 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

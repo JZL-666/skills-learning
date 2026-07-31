@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 课 · 拷问的进化：grill-with-docs 与共享语言</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 3 课 · 拷问的进化：grill-with-docs 与共享语言</h1>
+<p class="lesson-meta">
+  阶段 1 · 拷问的艺术 ｜ 预计 12 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  grill-me 的罩门是<strong>失忆</strong>：会话一关，吵出来的共识全部蒸发。grill-with-docs 的解法是让拷问<strong>顺手留下两种文档</strong>——共享语言（CONTEXT.md）和决策记录（ADR）。这一课同时防御失控模式一（未对齐）和模式二（啰嗦）。
+</div>
+
+<h2>一、一手源码：还是一行编排</h2>
+
+<p><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md">grill-with-docs/SKILL.md</a> 的完整正文：</p>
+
+<pre><code>Run a `/grilling` session, using the `/domain-modeling` skill.</code></pre>
+<p style="color:#666;font-size:.9rem">（中文：运行一场 <code>/grilling</code> 拷问会话，同时使用 <code>/domain-modeling</code> 领域建模技能。）</p>
+
+<p>第 2 课的 Wrapper 模式再次出现，但这次是<strong>组合两个引擎</strong>：</p>
+
+<pre><code>grill-me        =  grilling（拷问引擎）
+grill-with-docs =  grilling（拷问引擎）+ domain-modeling（建模引擎）</code></pre>
+
+<p>Matt 自己更常用 grill-with-docs。真正的新知识全在 <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md">domain-modeling/SKILL.md</a> 里——这是本套 skills 中少见的"长 skill"（75 行），因为它承载的是一门完整学科的压缩：DDD（领域驱动设计）。</p>
+
+<h2>二、domain-modeling 的五个"会话中动作"</h2>
+
+<p>拷问进行时，AI 被要求随时执行这五个动作（每条都引自源码，附中文）：</p>
+
+<table>
+  <tr><th>#</th><th>动作</th><th>源码原文（英）</th><th>中文对照 + 它在防什么</th></tr>
+  <tr>
+    <td>1</td>
+    <td><strong>用术语表对质</strong></td>
+    <td><em>"Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"</em></td>
+    <td>"你的术语表把'取消'定义为 X，但你现在说的像是 Y——到底是哪个？"<br>防：同一个词悄悄变味，代码和讨论渐行渐远</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>锐化模糊用词</strong></td>
+    <td><em>"You're saying 'account' — do you mean the Customer or the User?"</em></td>
+    <td>"你说'账户'——你指的是客户（Customer）还是用户（User）？这是两回事。"<br>防：一词多义在系统里埋雷</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><strong>用具体场景压力测试</strong></td>
+    <td><em>"Invent scenarios that probe edge cases and force the user to be precise"</em></td>
+    <td>发明探测边界的场景，逼用户对概念边界给出精确回答<br>防：概念关系只在"理想情况"下成立</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><strong>和代码交叉验证</strong></td>
+    <td><em>"Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"</em></td>
+    <td>"你的代码只能整单取消，但你刚说可以部分取消——哪个对？"<br>防：嘴上的模型和代码里的模型分裂</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><strong>当场写入 CONTEXT.md</strong></td>
+    <td><em>"When a term is resolved, update CONTEXT.md right there. Don't batch these up"</em></td>
+    <td>术语一敲定就立刻写入，不要攒着批量处理<br>防：会话结束共识蒸发（grill-me 的罩门）</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <span class="label">Agent 工程师视角</span>
+  CONTEXT.md 对 AI 的本质是什么？——<strong>一份人工维护的"语义压缩词表"</strong>。
+  README 举的例子：没有它，要说"当课程章节里的某节课被'落实'（即在文件系统中获得位置）时出了问题"；
+  有了它，一个词："materialization cascade（落实级联）出了问题"。
+  这就是你设计自己 Agent 时的启示：<em>给 Agent 一份领域词表，token 消耗、命名一致性、导航效率三线齐收</em>。
+  这也正是失控模式二（啰嗦）的根治法——不是叫 AI"说话简洁点"，而是给它一门更高压缩比的语言。
+</div>
+
+<h2>三、CONTEXT.md 的格式纪律（三条最容易踩的）</h2>
+
+<p>源码 <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/CONTEXT-FORMAT.md">CONTEXT-FORMAT.md</a> 的词条格式长这样：</p>
+
+<pre><code>**Invoice**:
+A request for payment sent to a customer after delivery.
+_Avoid_: Bill, payment request</code></pre>
+<p style="color:#666;font-size:.9rem">（中文：<strong>发票（Invoice）</strong>：交付后向客户发出的付款请求。<em>避免使用</em>：Bill、payment request。）</p>
+
+<ul>
+  <li><strong>要有立场（Be opinionated）</strong>：多个词指同一概念时，选定一个最佳词，其余全打入 <code>_Avoid_</code> 黑名单——这不是宽容的同义词典，是独裁的标准语</li>
+  <li><strong>只收本项目特有概念</strong>：超时、错误类型这类通用编程概念不配入表——问自己"这是本领域独有的概念，还是通用编程概念？"</li>
+  <li><strong>纯词汇表，零实现细节</strong>：源码原话 <em>"It is a glossary and nothing else"</em>（它是术语表，仅此而已）——防止它腐化成规格书或草稿纸（想想第 2 站 to-spec 为什么禁止代码入 spec，同一个道理：越稳定的文档越不能掺易变的内容）</li>
+</ul>
+
+<h2>四、ADR：三个条件缺一不写</h2>
+
+<p>ADR（Architecture Decision Record，架构决策记录）回答的是"当初为什么这么干"。domain-modeling 刻意要求<strong>克制</strong>（offer ADRs sparingly，谨慎提议），三条件全满足才写：</p>
+
+<table>
+  <tr><th>条件</th><th>原文</th><th>中文</th></tr>
+  <tr><td>1</td><td><em>Hard to reverse</em></td><td>难以回头——将来反悔的代价是实打实的</td></tr>
+  <tr><td>2</td><td><em>Surprising without context</em></td><td>缺了上下文会让人惊讶——未来读者会问"当初为什么这样搞？"</td></tr>
+  <tr><td>3</td><td><em>The result of a real trade-off</em></td><td>真实取舍的产物——当时确有多个选项，你为了特定理由选了这个</td></tr>
+</table>
+
+<p>缺任何一条都跳过。<strong>为什么要克制？</strong>——回忆 writing-great-skills 的"修剪"原则：文档和 prompt 一样，多一份废文档，未来读者（人和 AI）就多一分分心。</p>
+
+<h2>五、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 拷问中你说"用户下单后账户会扣款"，AI 回应："你说的'账户'，是指术语表里的 Customer 还是支付上下文里的 Wallet？"这是五个动作中的哪一个？</p>
+  <label>动作一：用术语表来对质冲突</label>
+  <label data-right="1">动作二：锐化模糊多义的用词</label>
+  <label>动作三：用具体场景压力测试</label>
+  <label>动作四：和现有代码交叉验证</label>
+  <div class="feedback right">✅ 正确。"账户"是一词多义（overloaded term），AI 提议在两个候选精确概念中二选一——这是"锐化模糊用词"。（如果术语表已有定义而你用歪了，那才是动作一。）</div>
+  <div class="feedback wrong">注意区分：动作一的前提是<strong>术语表里已有定义</strong>而你的用法和它冲突；这里"账户"根本没入表，只是一词多义需要拆开——属于动作二"锐化模糊用词"。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · 团队想把"我们选了 PostgreSQL 而不是 MongoDB，因为需要事务保证"写成文档。按三条件判断，该写成什么？</p>
+  <label data-right="1">写 ADR，三个条件全都满足了</label>
+  <label>写进 CONTEXT.md 的术语表里</label>
+  <label>不写，数据库选型是常见操作</label>
+  <label>写进 spec，跟功能规格放一起</label>
+  <div class="feedback right">✅ 正确。换数据库代价巨大（难回头）、未来的人会问为什么不用更时髦的方案（缺上下文会惊讶）、确实在两个真实选项间做了取舍——三条全中，写 ADR。注意它<strong>不能</strong>进 CONTEXT.md：那是纯术语表，零实现细节。</div>
+  <div class="feedback wrong">逐条过：难回头？换数据库伤筋动骨，✓。缺上下文会惊讶？未来读者会问"为什么不用 X"，✓。真实取舍？Postgres vs Mongo 是真选择，✓。三条全中 → 写 ADR。CONTEXT.md 不行——它是纯术语表（"a glossary and nothing else"）。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 为什么 CONTEXT.md 严禁写实现细节？（提示：回忆 to-spec 禁止在规格书里写代码的理由）</p>
+  <label>因为实现细节太长，会把文件撑爆</label>
+  <label>因为实现细节属于机密，不应外传</label>
+  <label data-right="1">因为代码易变，混入会让文档过期</label>
+  <label>因为格式规定如此，必须严格遵守</label>
+  <div class="feedback right">✅ 正确。这是整套 skills 反复出现的深层原则：<strong>按变化频率分层</strong>——术语和"要解决什么问题"最稳定，代码最易变。把易变的掺进稳定的，稳定文档就会过期说谎，AI 下次读到过期内容会被带偏，越改越乱。</div>
+  <div class="feedback wrong">核心是<strong>变化频率</strong>：代码天天变，术语很少变。混入实现细节后，代码一改文档就过期，下次 AI 拿着过期文档干活会被带偏——和 to-spec 禁代码是同一条深层原则：按变化频率给文档分层。</div>
+</div>
+
+<h2>六、课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，10 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md">domain-modeling/SKILL.md</a> 全文 + Matt 真实项目的 <a href="https://github.com/mattpocock/course-video-manager/blob/076a5a7a182db0fe1e62971dd7a68bcadf010f1c/CONTEXT.md">CONTEXT.md 实例</a>（看看真家伙长什么样）。</li>
+  <li><strong>可选加分项（不阻塞）</strong>：哪天你在公司项目里跑一次 grill-with-docs，把生成的 CONTEXT.md 拿来给我点评。</li>
+  <li><strong>随时提问</strong>：DDD 的水很深，本课只取了 skills 用到的那瓢——觉得哪里没讲透，回对话框问我。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 3 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

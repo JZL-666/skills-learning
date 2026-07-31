@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 课 · 12 种代码坏味道与双轴审查</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 5 课 · 12 种代码坏味道与双轴审查</h1>
+<p class="lesson-meta">
+  阶段 2 · 工程内功 ｜ 预计 15 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md">code-review/SKILL.md</a> 的两件武器：
+  <strong>双轴审查</strong>（Standards 标准轴 ✕ Spec 规格轴，平行子代理互不污染）+ <strong>12 种坏味道基线</strong>（全部出自 Fowler《重构》第 3 章）。
+  坏味道的价值在于：它们是<strong>指引词</strong>——一个词顶一百字的解释（第 2 课"给理由"、第 9 课"leading words"的同宗）。
+</div>
+
+<h2>一、双轴审查：为什么要拆成两个平行子代理？</h2>
+
+<p>审查 diff 时沿两条独立的轴：</p>
+
+<table>
+  <tr><th>轴</th><th>问题</th><th>失败示例</th></tr>
+  <tr><td><strong>Standards 标准轴</strong></td><td>代码符合本仓库的成文规范 + 坏味道基线吗？</td><td>实现了正确的功能，但破坏了项目惯例</td></tr>
+  <tr><td><strong>Spec 规格轴</strong></td><td>代码忠实实现了源头 issue/PRD 的要求吗？</td><td>每条规范都守了，但做的根本不是要的东西</td></tr>
+</table>
+
+<blockquote>
+  "Both axes run as parallel sub-agents so they don't pollute each other's context... Reporting them separately stops one axis from masking the other."<br>
+  （中文：两条轴作为平行子代理运行，避免互相污染上下文……分开报告，防止一条轴掩盖另一条轴的问题。）
+</blockquote>
+
+<p>三个设计细节值得你抄进自己的 Agent：</p>
+<ul>
+  <li><strong>先验证再开工</strong>：进入子代理前先确认 git 引用能解析、diff 非空——"A bad ref or empty diff should fail here — not inside two parallel sub-agents."（坏引用应该在这里失败，而不是在两个平行子代理内部失败。）失败要发生在最便宜的位置</li>
+  <li><strong>仓库规范 &gt; 基线</strong>：项目成文规范永远压过坏味道基线；工具（linter）已强制的东西直接跳过——不重复劳动</li>
+  <li><strong>坏味道永远是"判断题"</strong>：报告写"possible Feature Envy（疑似依恋情结）"，never a hard violation（绝不当硬性违规）——给人留拍板权，熟悉吗？这是 grilling 的"决策归人类"在审查场景的重演</li>
+</ul>
+
+<h2>二、12 种坏味道基线（每条：是什么 → 怎么治）</h2>
+
+<p>全部译自源码，出处均为 Fowler《Refactoring》第 3 章：</p>
+
+<table>
+  <tr><th>坏味道</th><th>是什么</th><th>怎么治</th></tr>
+  <tr><td><strong>Mysterious Name</strong><br>神秘命名</td><td>函数/变量/类型的名字看不出它是干嘛的</td><td>重命名；如果起不出诚实的名字，说明设计本身就是浑的</td></tr>
+  <tr><td><strong>Duplicated Code</strong><br>重复代码</td><td>同一逻辑形状出现在多处</td><td>提取共享形状，两边都调用它</td></tr>
+  <tr><td><strong>Feature Envy</strong><br>依恋情结</td><td>方法伸手够别的对象的数据多过用自己的</td><td>把方法搬到它所依恋的数据那边去</td></tr>
+  <tr><td><strong>Data Clumps</strong><br>数据泥团</td><td>同样几个字段/参数总是结伴出行（一个想要出生的类型）</td><td>捆成一个类型，传它</td></tr>
+  <tr><td><strong>Primitive Obsession</strong><br>基础类型偏执</td><td>用裸的 string/number 硬扛一个值得拥有自己类型的领域概念</td><td>给这个概念一个自己的小类型</td></tr>
+  <tr><td><strong>Repeated Switches</strong><br>重复的分支</td><td>对同一类型的同一套 switch/if 级联在多处反复出现</td><td>换多态，或两处共享一个映射表</td></tr>
+  <tr><td><strong>Shotgun Surgery</strong><br>散弹枪手术</td><td>一个逻辑变更迫使你在很多文件里到处改</td><td>把一起变化的东西收拢进一个模组</td></tr>
+  <tr><td><strong>Divergent Change</strong><br>发散式变化</td><td>一个文件/模组因为几个互不相关的原因被修改</td><td>拆开，让每个模组只为一个原因而变</td></tr>
+  <tr><td><strong>Speculative Generality</strong><br>投机通用性</td><td>为规格里没有的需求预加的抽象、参数、钩子</td><td>删掉；内联回去，等真需求出现再说</td></tr>
+  <tr><td><strong>Message Chains</strong><br>消息链</td><td>调用方依赖 <code>a.b().c().d()</code> 式的长导航</td><td>把这段行走藏进第一个对象的一个方法里</td></tr>
+  <tr><td><strong>Middle Man</strong><br>中间人</td><td>一个类/函数基本只是往下转发</td><td>砍掉它，直接调真正的目标</td></tr>
+  <tr><td><strong>Refused Bequest</strong><br>拒绝的遗产</td><td>子类无视或覆盖了它继承来的大部分东西</td><td>放弃继承，改用组合</td></tr>
+</table>
+
+<div class="callout">
+  <span class="label">你已亲手抓过的 + 和第 4 课的接线</span>
+  <strong>Shotgun Surgery</strong> 你抓过活的：导航系统重构那次，"每新增一课就要回改所有旧课"就是它，解法（收敛到 toc-data.js 单一数据源）正是"把一起变化的东西收拢一处"。<br>
+  再看三个熟脸：<strong>Middle Man</strong> = 第 4 课删除测试删掉后天下太平的那种浅模组；<strong>Speculative Generality</strong> = "一个适配器的假想接缝"；<strong>Data Clumps / Primitive Obsession</strong> = 接口参数没设计好——坏味道清单和深模组理论是同一枚硬币的两面：<em>坏味道是症状，深模组是处方</em>。
+</div>
+
+<h2>三、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 你的代码里，<code>createUser(name, email, phone)</code>、<code>updateContact(name, email, phone)</code>、<code>sendWelcome(name, email, phone)</code>——这三个参数总是结伴出现。这是哪种坏味道，怎么治？</p>
+  <label>重复代码；提取一个共享的工具函数</label>
+  <label data-right="1">数据泥团；捆成 Contact 类型传进去</label>
+  <label>消息链；把导航藏进第一个对象里</label>
+  <label>散弹枪手术；把它们收拢进一个模组</label>
+  <div class="feedback right">✅ 正确。"同样几个参数总是结伴出行"就是 Data Clumps——源码的诊断词很形象："a type wanting to be born"（一个想要出生的类型）。接生它：定义 <code>Contact { name, email, phone }</code>，三个函数都改收一个 Contact。</div>
+  <div class="feedback wrong">注意症状：不是"同一段逻辑出现多次"（那是重复代码），而是"同一组<strong>参数</strong>总是结伴旅行"——这是 Data Clumps（数据泥团），治法是把它们捆成一个类型（Contact）。源码的说法："a type wanting to be born"（一个想要出生的类型）。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · AI 在实现"导出 CSV"需求时，顺手设计了一个 <code>ExportStrategy</code> 接口 + 工厂，"方便以后支持 PDF、Excel"。但规格里只要求 CSV。这是哪种坏味道？</p>
+  <label>发散式变化，一个模组多个变化原因</label>
+  <label>拒绝的遗产，继承体系设计不合理</label>
+  <label data-right="1">投机通用性，为没有的需求预加抽象</label>
+  <label>中间人问题，一个类只是负责转发</label>
+  <div class="feedback right">✅ 正确。Speculative Generality——"为规格没有的需求预加的抽象"。治法就一个字：删。这是 AI 生成代码最高发的坏味道之一（AI 特别爱"体贴地"预留扩展点），也是双轴审查里 Spec 轴的"scope creep（范围蔓延）"和 Standards 轴的坏味道少见的双杀。</div>
+  <div class="feedback wrong">关键证据："方便以后支持"——为<strong>还不存在的需求</strong>预加的抽象层，这是 Speculative Generality（投机通用性）。联动第 4 课：这就是"一个适配器 = 假想接缝"的坏味道版本。治法：删掉，等真需求（第二个适配器）出现再抽。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 为什么坏味道基线在报告里永远写成"疑似（possible）"，而成文仓库规范的违反可以是"硬性（hard）"？</p>
+  <label>因为坏味道理论过时了，可信度较低</label>
+  <label>因为子代理能力有限，检测不太可靠</label>
+  <label data-right="1">因为坏味道是启发式，需要人来拍板</label>
+  <label>因为这样报告语气委婉，容易被接受</label>
+  <div class="feedback right">✅ 正确。源码原文："Each smell is a labelled heuristic, never a hard violation."（每种坏味道是一个带标签的启发式，绝不是硬性违规。）坏味道依赖上下文判断（比如仓库规范明确允许的写法要压过基线），最终裁决权在人——又是那条贯穿全套 skills 的主线：AI 给选项，人类拍板。</div>
+  <div class="feedback wrong">源码给的理由是性质而非能力："Each smell is a labelled heuristic（启发式）, never a hard violation"——坏味道天生依赖上下文（仓库规范可以合法压过基线），所以只能标记"疑似"，由人拍板。这是"决策权留给人类"主线在审查场景的体现。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q4 · 一次改动"给订单加个折扣字段"，diff 显示同一个 <code>utils.ts</code> 这个月已第 4 次因完全不相关的原因（上次是邮件模板、上上次是日期格式）被修改。这是哪种坏味道？</p>
+  <label data-right="1">发散式变化：一个文件多个变化原因</label>
+  <label>散弹枪手术：一个变化改动多个文件</label>
+  <label>依恋情结：方法总是用别人家数据</label>
+  <label>重复的分支：同个切换到处反复出现</label>
+  <div class="feedback right">✅ 正确。注意它和散弹枪手术是<strong>镜像</strong>：Divergent Change = 一个文件被 N 个原因改（万能 utils 是重灾区）；Shotgun Surgery = 一个原因要改 N 个文件。方向相反，病根相同：变化的东西没有按"一起变"的原则归位。治法：拆开 utils，让每个模组只为一个原因而变。</div>
+  <div class="feedback wrong">分清镜像对：一个<strong>文件</strong>因 N 个不相关<strong>原因</strong>被反复改 = Divergent Change（发散式变化，万能 utils.ts 是重灾区）；一个<strong>原因</strong>要改 N 个<strong>文件</strong> = Shotgun Surgery（散弹枪手术，你抓过的那只）。本题是前者。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  12 个指引词入库。下次审 AI 生成的代码，不用说"总觉得哪里不对"——直接点名："这里疑似 Speculative Generality，删掉。"一个词，AI 秒懂，因为这些词深植在它的训练数据里。
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，10 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md">code-review/SKILL.md</a> 的 Process 一节——重点看两个子代理的 prompt 是怎么写的（对你编排多 Agent 是现成范本）。</li>
+  <li><strong>延伸（可选）</strong>：<a href="https://refactoring.guru/refactoring/smells">refactoring.guru 的坏味道图解目录</a>——每种坏味道配漫画，适合过一遍加深印象。</li>
+  <li><strong>下一课</strong>：第 6 课《TDD：防作弊的红绿循环》——导航条点"下一课"直达。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 5 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

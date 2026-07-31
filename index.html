@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程目录 · 驾驭 AI Agent 的工程内功</title>
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+
+<h1>📚 课程目录</h1>
+<p class="lesson-meta">
+  驾驭 AI Agent 的工程内功 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a> ｜
+  基于真实源码的 9 课自学课程
+</p>
+
+<div class="callout">
+  <span class="label">这是你的固定入口</span>
+  建议把本页加入浏览器书签。误关任何课程页，回这里都能找到。新课上线后本页自动更新，无需手动维护。
+</div>
+
+<h2>课程</h2>
+<div id="toc-list"><p style="color:#666">（若此处为空白，说明浏览器禁用了本地 JS——直接打开 lessons/ 目录下的 HTML 文件即可）</p></div>
+
+<h2>速查参考</h2>
+<div id="ref-list"></div>
+
+<h2>课程地图（规划中）</h2>
+<table>
+  <tr><th>阶段</th><th>主题</th><th>状态</th></tr>
+  <tr><td>阶段 0 · 世界观</td><td>四大失控模式 → 药方索引</td><td>✅ 第 1 课</td></tr>
+  <tr><td>阶段 1 · 拷问的艺术</td><td>grilling 逐句拆解；grill-with-docs 与共享语言</td><td>✅ 第 2、3 课</td></tr>
+  <tr><td>阶段 2 · 工程内功</td><td>深模组、代码坏味道、TDD 防作弊</td><td>✅ 第 4、5、6 课</td></tr>
+  <tr><td>阶段 3 · 工作流主干道</td><td>to-spec → to-tickets → implement → code-review</td><td>✅ 第 7、8 课</td></tr>
+  <tr><td>阶段 4 · 终极检验</td><td>用 writing-great-skills 三原则写出你自己的 skill</td><td>✅ 第 9 课（含毕业设计，随时交）</td></tr>
+</table>
+
+<footer>
+  skills-learning ｜ 有任何疑问，回编辑器对话框问你的 AI 老师
+</footer>
+
+<script src="assets/toc-data.js"></script>
+<script>
+(function () {
+  var list = document.getElementById('toc-list');
+  var html = '<table><tr><th>课程</th><th>所属阶段</th></tr>';
+  window.COURSE_TOC.forEach(function (c) {
+    html += '<tr><td><a href="lessons/' + c.file + '">' + c.title + '</a></td><td>' + c.stage + '</td></tr>';
+  });
+  list.innerHTML = html + '</table>';
+
+  var refs = document.getElementById('ref-list');
+  var rhtml = '<ul>';
+  window.COURSE_REFS.forEach(function (r) {
+    var href = r.url ? r.url : 'reference/' + r.file;
+    rhtml += '<li><a href="' + href + '">' + r.title + '</a></li>';
+  });
+  refs.innerHTML = rhtml + '</ul>';
+})();
+</script>
+</body>
+</html>

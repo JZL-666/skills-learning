@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>术语表 · skills-learning</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>术语表（Glossary）</h1>
+<p class="lesson-meta">速查参考 ｜ 每课持续扩充 ｜ 英文术语 = 喂给 AI 时的"指引词"，请优先记英文</p>
+
+<nav id="course-nav"></nav>
+
+<table>
+  <tr><th>术语</th><th>中文</th><th>一句话定义</th><th>出处 / 首次出现</th></tr>
+  <tr>
+    <td><code>Skill</code></td>
+    <td>技能</td>
+    <td>一个 SKILL.md 文件：frontmatter（name/description）+ 一段给 agent 的指令，教它完成一类特定任务</td>
+    <td><a href="https://code.claude.com/docs/en/skills">Claude Code 官方文档</a> · 第 1 课</td>
+  </tr>
+  <tr>
+    <td><code>Misalignment</code></td>
+    <td>未对齐</td>
+    <td>失控模式一：你以为它懂了你要什么，做出来才发现完全不是——沟通鸿沟造成，防御手段是 grilling</td>
+    <td>README #1 · 第 1 课</td>
+  </tr>
+  <tr>
+    <td><code>Ubiquitous Language</code></td>
+    <td>共享语言</td>
+    <td>团队（含 AI）对领域概念使用同一套精确术语，1 个词顶 20 个词，写入 CONTEXT.md</td>
+    <td>Eric Evans《DDD》· README #2 · 第 1 课</td>
+  </tr>
+  <tr>
+    <td><code>Red-Green-Refactor</code></td>
+    <td>红-绿-重构</td>
+    <td>TDD 循环：先写必然失败的测试（红）→ 写实现让它通过（绿）→ 整理代码（重构）；"先红"锁死 AI 造假测试的空间</td>
+    <td>README #3 · 第 1 课</td>
+  </tr>
+  <tr>
+    <td><code>Ball of Mud</code></td>
+    <td>大泥球</td>
+    <td>失控模式四：无清晰架构、处处纠缠的代码库；AI 提速写码 = 提速熵增，泥球化空前加快</td>
+    <td>README #4 · 第 1 课</td>
+  </tr>
+  <tr>
+    <td><code>Deep Module</code></td>
+    <td>深模组</td>
+    <td>小接口 + 大量行为。深度是<strong>接口</strong>的属性（深度=杠杆，非行数比）；换来 Leverage（调用者）与 Locality（维护者/AI）</td>
+    <td>codebase-design/SKILL.md · 第 4 课</td>
+  </tr>
+  <tr>
+    <td><code>Seam</code></td>
+    <td>接缝</td>
+    <td>接口所在的位置（Michael Feathers）；"在哪开门"和"门后藏什么"是两个独立决策。一个适配器=假想接缝，两个=真实接缝。_Avoid_: boundary</td>
+    <td>codebase-design/SKILL.md · 第 4 课</td>
+  </tr>
+  <tr>
+    <td><code>Deletion Test</code></td>
+    <td>删除测试</td>
+    <td>判断深浅的刀：想象删掉模组——复杂度消失=二传手（清理）；复杂度在 N 个调用方重新长出=真干活（保留）</td>
+    <td>codebase-design/SKILL.md · 第 4 课</td>
+  </tr>
+  <tr>
+    <td><code>Grilling</code></td>
+    <td>拷问</td>
+    <td>动工前让 AI 一次一问地拷问你，直到达成共识；目的是把决策权留在人类手里</td>
+    <td><a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md">grilling/SKILL.md</a> · 第 1、2 课</td>
+  </tr>
+  <tr>
+    <td><code>Fact vs Decision</code></td>
+    <td>事实 / 决策分割</td>
+    <td>grilling 的权责分割线：环境里查得到的是事实（AI 自己查），主观取舍是决策（必须问人、人来拍板）</td>
+    <td>grilling 源码第 3 段 · 第 2 课</td>
+  </tr>
+  <tr>
+    <td><code>User-invoked</code></td>
+    <td>用户调用</td>
+    <td>frontmatter 含 <code>disable-model-invocation: true</code> 的 skill：只有用户敲斜杠命令才触发，职责是编排</td>
+    <td>README · Reference 节 · 第 2 课</td>
+  </tr>
+  <tr>
+    <td><code>Model-invoked</code></td>
+    <td>模型可调用</td>
+    <td>未禁用模型调用的 skill：AI 判断任务匹配时可自行调用，承载可复用的纪律（如 grilling、tdd）</td>
+    <td>README · Reference 节 · 第 2 课</td>
+  </tr>
+  <tr>
+    <td><code>Wrapper Pattern</code></td>
+    <td>包装模式</td>
+    <td>入口 skill 只有一行转发（grill-me → grilling），逻辑集中在引擎 skill；一处修改，所有调用方生效</td>
+    <td>grill-me/grilling 源码对照 · 第 2 课</td>
+  </tr>
+  <tr>
+    <td><code>Action Gate</code></td>
+    <td>行动闸门</td>
+    <td>"未经确认不得动工"类指令（Do not act until I confirm...）：给流程装上明确的完成标准与刹车</td>
+    <td>grilling 源码第 4 段 · 第 2 课</td>
+  </tr>
+  <tr>
+    <td><code>CONTEXT.md</code></td>
+    <td>共享语言文件</td>
+    <td>项目的纯术语表（"a glossary and nothing else"）：每词条含定义 + _Avoid_ 黑名单；零实现细节，只收领域特有概念</td>
+    <td>CONTEXT-FORMAT.md · 第 3 课</td>
+  </tr>
+  <tr>
+    <td><code>ADR</code></td>
+    <td>架构决策记录</td>
+    <td>记录"当初为什么这么干"的短文档；三条件缺一不写：难回头、缺上下文会惊讶、真实取舍的产物</td>
+    <td>domain-modeling 源码 · 第 3 课</td>
+  </tr>
+  <tr>
+    <td><code>Domain Modeling</code></td>
+    <td>领域建模</td>
+    <td>主动磨利项目领域模型的纪律：对质术语、锐化模糊词、场景压测、与代码交叉验证、当场写入 CONTEXT.md</td>
+    <td>domain-modeling/SKILL.md · 第 3 课</td>
+  </tr>
+  <tr>
+    <td><code>Code Smell</code></td>
+    <td>代码坏味道</td>
+    <td>Fowler《重构》第 3 章的 12 种启发式症状（Data Clumps、Shotgun Surgery…）；永远是"疑似"判断题，人来拍板</td>
+    <td>code-review/SKILL.md · 第 5 课</td>
+  </tr>
+  <tr>
+    <td><code>Two-axis Review</code></td>
+    <td>双轴审查</td>
+    <td>Standards（合规范？）与 Spec（合需求？）两条轴平行子代理分开跑、分开报——防一轴掩盖另一轴</td>
+    <td>code-review/SKILL.md · 第 5 课</td>
+  </tr>
+  <tr>
+    <td><code>Tautological Test</code></td>
+    <td>同义反复测试</td>
+    <td>断言用和实现同一套逻辑重算期望值，恒真、同错同绿；解药：期望值来自独立真相源 + 先红后绿</td>
+    <td>tdd/SKILL.md · 第 6 课</td>
+  </tr>
+  <tr>
+    <td><code>Tracer Bullet</code></td>
+    <td>曳光弹</td>
+    <td>窄但纵贯全层（schema/API/UI/测试）的垂直切片；落地即可演示，大小以一个 context window 为限</td>
+    <td>to-tickets/SKILL.md · 第 6、7 课</td>
+  </tr>
+  <tr>
+    <td><code>Expand–Contract</code></td>
+    <td>扩张-收缩</td>
+    <td>宽重构（爆炸半径横扫全库）的三段式：新旧并存 → 分批迁移（批批保绿）→ 删旧收缩</td>
+    <td>to-tickets/SKILL.md · 第 7 课</td>
+  </tr>
+  <tr>
+    <td><code>Leading Word</code></td>
+    <td>指引词</td>
+    <td>预训练里现成的紧凑概念（tight、red、relentless）：正文锚定执行、description 锚定调用，百字压成单 token</td>
+    <td>writing-great-skills · 第 9 课</td>
+  </tr>
+  <tr>
+    <td><code>No-op / Negation</code></td>
+    <td>空指令 / 负面指令</td>
+    <td>两大 prompt 失败模式：模型默认就会的话白烧 token；"不要 X"把 X 送进注意力——正着说目标行为</td>
+    <td>writing-great-skills · 第 9 课</td>
+  </tr>
+</table>
+
+<footer>skills-learning · reference/glossary.html ｜ 与每课链接互通</footer>
+
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

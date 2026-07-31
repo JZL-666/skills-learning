@@ -1,0 +1,92 @@
+/* course.css — skills-learning 课程共享样式表（Tufte 风格） */
+:root {
+  --bg: #fffff8;
+  --ink: #111;
+  --muted: #666;
+  --accent: #b02a1a;
+  --link: #1a4a8a;
+  --code-bg: #f4f2ec;
+  --border: #ddd8cc;
+  --ok: #1a7a3a;
+}
+* { box-sizing: border-box; }
+html { font-size: 17px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Songti SC", "Noto Serif CJK SC", Georgia, "Times New Roman", serif;
+  line-height: 1.75;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+h1 { font-size: 1.9rem; line-height: 1.3; margin: 0 0 .3rem; font-weight: 700; }
+h2 { font-size: 1.35rem; margin-top: 2.8rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.1rem; margin-top: 2rem; }
+.lesson-meta { color: var(--muted); font-size: .85rem; margin-bottom: 2.5rem; }
+.lesson-meta a { color: var(--muted); }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+code, pre {
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: .85em;
+  background: var(--code-bg);
+  border-radius: 4px;
+}
+code { padding: .12em .35em; }
+pre { padding: 1rem 1.2rem; overflow-x: auto; border: 1px solid var(--border); line-height: 1.6; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1.5rem 0;
+  padding: .2rem 1.2rem;
+  border-left: 3px solid var(--accent);
+  color: #333;
+  font-style: italic;
+}
+blockquote .src { display: block; font-style: normal; font-size: .8rem; color: var(--muted); margin-top: .4rem; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92rem; }
+th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+.callout {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  background: #fdfaf3;
+  padding: 1rem 1.3rem;
+  margin: 1.8rem 0;
+  border-radius: 0 6px 6px 0;
+}
+.callout .label { font-weight: 700; color: var(--accent); font-size: .8rem; letter-spacing: .08em; display: block; margin-bottom: .3rem; }
+.win {
+  border: 1px solid var(--ok);
+  background: #f2f9f2;
+  padding: 1rem 1.3rem;
+  margin: 1.8rem 0;
+  border-radius: 6px;
+}
+.win .label { font-weight: 700; color: var(--ok); font-size: .8rem; letter-spacing: .08em; display: block; margin-bottom: .3rem; }
+/* --- quiz --- */
+.quiz { border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; background: #fcfbf5; }
+.quiz .q { font-weight: 600; margin-bottom: .8rem; }
+.quiz label {
+  display: block; padding: .5rem .8rem; margin: .35rem 0;
+  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+}
+.quiz label:hover { background: var(--code-bg); }
+.quiz .feedback { display: none; margin-top: .8rem; padding: .7rem 1rem; border-radius: 6px; font-size: .92rem; }
+.quiz.answered .feedback { display: block; }
+.quiz .feedback.right { background: #f2f9f2; border: 1px solid var(--ok); }
+.quiz .feedback.wrong { background: #fbf0ee; border: 1px solid var(--accent); }
+footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; }
+/* --- course nav (配合 nav.js) --- */
+#course-nav {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+  padding: .6rem .9rem; margin: 0 0 2.2rem;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg);
+  font-size: .88rem;
+}
+#course-nav a { text-decoration: none; padding: .15rem .5rem; border-radius: 5px; }
+#course-nav a:hover { background: #fff; }
+#course-nav select {
+  margin-left: auto; max-width: 16rem;
+  font: inherit; font-size: .85rem; padding: .2rem .4rem;
+  border: 1px solid var(--border); border-radius: 5px; background: #fff; color: var(--ink);
+}

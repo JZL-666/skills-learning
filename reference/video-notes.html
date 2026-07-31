@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视频笔记 · 700 万人下载的 /grill-me，Matt Pocock 到底写了什么？</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>📺 视频笔记 · 700 万人下载的 /grill-me，Matt Pocock 到底写了什么？</h1>
+<p class="lesson-meta">
+  二手导读资料 ｜ 来源：Gary Chen 频道，2026-07-22，约 20 分钟 ｜
+  <a href="https://www.youtube.com/watch?v=aR97E7aKEgg">▶ 观看原视频</a> ｜
+  <a href="./MattPocock-skills工作流拆解-grill-me到深模组.md">Markdown 原文</a>
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">阅读须知</span>
+  本文是视频内容的中文拆解，属<strong>二手资料</strong>——与仓库源码冲突时以源码为准（课程中已修正过一处：那"五行字"实际住在 grilling 而非 grill-me）。
+  时间戳：0:00 爆红的五行字 ｜ 1:24 grill-me ｜ 3:56 规格书与拆任务 ｜ 6:22 TDD 与 Code Review ｜ 11:15 深模组 vs 浅模组 ｜ 16:39 跟 Superpowers 比一比。
+</div>
+
+<h2>一句话总结</h2>
+<p>TypeScript 大神 Matt Pocock 把自己的 AI 开发工作流开源（16 万+ star、700 万次下载），其中最红的 grill-me 只有五行字。这套系统的精髓不是某个 skill，而是<strong>用几十年软件工程的经验（深模组、代码坏味道、TDD）+ 极简精炼的指引词，把决策权从 AI 手里抢回人类手里</strong>。</p>
+
+<h2>背景：爆红的五行字 skill</h2>
+<ul>
+  <li>Matt Pocock 是 TypeScript 领域最顶尖的专家和老师，大量开发者靠他的教材成长</li>
+  <li>这次开源的项目是他把自己的 AI 工作流打包：从写规格、拆任务到写测试的一整套 skill</li>
+  <li>最先爆红的 grill-me 打开来只有五行字</li>
+  <li>Matt 这一年把重心整个搬到 AI 上，发现<strong>比起写 code 的速度，更难的是怎么控制 AI</strong>——AI 本质上是充满随机性的黑盒子</li>
+</ul>
+
+<h3>设计哲学：小而模组化 vs 大而全的框架</h3>
+<p>市面上控制 AI 随机性的框架已有不少：Get Shit Done、Spec-Kit、Superpowers。但 Matt 认为这些大框架的毛病是<strong>想把整个开发流程接管过去</strong>：以 Spec-Kit 为例，从写规格、做计划到实作全绑成一条又重又硬的固定流程；前面一步定歪，错误顺着整条线传染到后面，想改往往整条重跑。所以 Matt 的 skill 走完全相反的路：<strong>每一个都刻意做得很小、很好改、能自由拼装</strong>。这个"小而模组化"的理念是他所有东西的底层逻辑。</p>
+
+<h2>工作流主干道</h2>
+
+<h3>第一站：grill-me —— 让 AI 反过来拷问你</h3>
+<p>五行字的内容：① 在对接下来的计划达成共识之前，把我往死里问；② 像画心智图一样顺着思路延伸，把每个决定背后的连锁反应一个个抓出来问到底；③ 每次只能问一个问题；④ 必须附上建议答案；⑤ 在整体设计达成共识之前，绝对不准偷偷跑去写程序。</p>
+<p><strong>为什么要写这五行字？</strong>写程序的本质是连续做出几百个微观决定（防呆怎么做？断线怎么办？极端资料怎么处理？）。把模糊想法直接丢给 AI 凭感觉做（Vibe Coding）= 把这几百个决定的决策权全部外包给黑盒子。AI 为了讨好你，通常会瞎掰出一套最难维护的架构——生产级软件的噩梦。grill-me 的唯一目的：<strong>把决策权抢回人类手里</strong>。人类面对空白屏幕从零写出涵盖所有极端状况的完美企划书太痛苦，所以把"找漏洞"的苦差事丢给 AI；AI 只负责给选项，<strong>拍板定案的永远是人类</strong>——人类才能稳稳坐在架构师的位置上。</p>
+
+<h3>第二站：to-spec —— 把共识写成规格书</h3>
+<p>关掉对话 AI 就失忆，刚吵出来的共识直接蒸发，所以要立刻写成规格书存起来。Matt 在这个 skill 里<strong>完全禁止 AI 在写 spec 时引用或写任何程序代码</strong>。原因：软件工程界最大的痛——<strong>文件永远跟不上代码更新的速度</strong>。代码是最容易变动的；如果规格里有代码，未来代码改动后规格对不上，下次让 AI 照规格改功能，就会被过期错误的旧 code 搞混，越改越乱。规格书永远只专注在思考"这个功能到底要解决什么问题"。</p>
+
+<h3>第三站：to-tickets —— 按用户功能拆任务，不按技术架构拆</h3>
+<p>AI 自己规划任务有个天生坏习惯：<strong>喜欢按技术架构分工</strong>。例如做电商网站，它会先建好全部数据库 → 写完全部后端逻辑 → 最后才画前端画面。致命盲点：最后一步画面出来之前，你完全没办法测试任何东西；如果第一步数据库建错了，得等到做前端时才发现，前面心血全毁。to-tickets 强制 AI <strong>按使用者功能拆任务</strong>：任务一只做"会员登入"——包含登入专属的数据库、逻辑、画面；任务二再做"加入购物车"——同样包含完整的数据库、后端、前端。好处：每做完一个小功能就能立刻打开浏览器测试；排好任务顺序后，互不干扰的任务可以同时发包给多个 AI 并行处理，开发速度翻倍。</p>
+
+<h3>第四站：implement + TDD —— 防止 AI 作弊</h3>
+<p>implement skill 照着任务清单写 code，过程中自动用 TDD 引导开发，写完自动呼叫 Code Review skill。<strong>TDD 为什么对 AI 开发特别重要？</strong>测试 = 一段"检查对错的程序"。<strong>AI 骨子里是个作弊仔</strong>：如果先写功能再补测试，万一 AI 把"满 1000 扣 100"写成"扣 200"，它为了交差会直接生成一个假测试（"满 1000 必须扣 200，检查通过！"）——拿自己写错的逻辑配上绝对会通过的测试，你根本抓不出 bug。TDD 就是防作弊：写任何一行程序之前先把测试定死 → 测试必然失败亮红灯 → 红灯出现后才准 AI 写真正的程序 → 直到红灯变绿灯。"先写测试，再写程序"的顺序彻底锁死 AI 乱写交差的空间。</p>
+
+<h3>第五站：Code Review —— 开新 session + 具体检查清单</h3>
+<p>程序写完、测试通过后，自动触发审查 skill，<strong>开一个全新 session 做 Code Review</strong>——让 AI 保持在最干净、最聪明的状态下检查。不是空泛的"请帮我检查有没有 Bug"，而是把软件工程界几十年公认的<strong>烂 code 症状写成具体检查清单</strong>（共点名 12 种，全部来自经典名著《Refactoring（重构）》）。</p>
+
+<table>
+  <tr><th>症状名</th><th>表现</th><th>Code Review 的要求</th></tr>
+  <tr><td><strong>Shotgun Surgery（散弹枪手术）</strong></td><td>只想改一个按钮颜色，却要打开十几个文件修改</td><td>把它们重新集中起来</td></tr>
+  <tr><td><strong>Feature Envy（依恋情结）</strong></td><td>处理订单的代码总是跑去管库存的文件拿资料来算</td><td>逻辑放错位置了，搬去订单那边</td></tr>
+  <tr><td><strong>Data Clumps（数据泥团）</strong></td><td>买家姓名、电话、地址三个变量总是同时出现、散着传来传去</td><td>打包成一个"联络人"对象</td></tr>
+</table>
+
+<h2>秘密武器：writing-great-skills 的三个原则</h2>
+<ol>
+  <li><strong>修剪（Pruning）</strong>：在 AI 面前，多写一句废话，AI 就多一分分心的可能。删掉所有废话、会让 AI 分心的文字、以及"你不说模型也知道该怎么做"的指令——这就是 grill-me 只需五行字的原因</li>
+  <li><strong>指引词</strong>：信息被极度压缩但含金量超高的专有名词。对 AI 说 "Data Clumps" 一个词，等于说了一百字的解释。Matt 大量运用深植在 AI 训练资料里的经典术语来精准传达意图</li>
+  <li><strong>完成标准</strong>：给 AI 一个明确的终点</li>
+</ol>
+
+<h2>深模组 vs 浅模组（对 AI 时代的架构启示）</h2>
+<p><strong>隐形炸弹：逻辑过度碎片化。</strong>AI 写程序速度太快但天生没有大局观，每次只盯着眼前几个文件，最容易写出一堆"浅模组"。</p>
+<p><strong>浅模组的比喻</strong>：一栋房子有厨房、客厅、卧室，房间分得很干净，但<strong>没有大门</strong>——进厨房要走窗户，进客厅要爬烟囱。AI 写购物车结账最爱盖这种房子：切成"计算折扣、验证信用卡、建立订单、扣除库存、寄信"五个小房间，却没有统一的大门隐藏细节。对 AI 致命的原因：Context Window 有限，出 bug 时 AI 要在房间之间疯狂跳转才能看懂整个流程，一旦超过记忆范围就开始瞎猜。</p>
+<p><strong>深模组</strong>：不是把一万行 code 塞在同一个大房间，而是<strong>盖一扇极度简单的大门，把复杂的房间藏在里面</strong>。结账对外只提供一个 <code>processCheckout</code> 函数；主程序敲一次门事情就办妥。对 AI 好在<strong>局部性极强</strong>：出问题时 AI 只要专注读这一个模组。一句话：<strong>浅模组让 AI 迷路瞎猜；深模组让 AI 专注精准打击。</strong></p>
+<p><strong>improve-codebase-architecture（架构大扫除 skill）</strong>：对代码进行残酷的"删除测试"——拔掉后天下大乱 = 深模组；拔掉后反而清爽 = 多余的空壳。当日常保养每隔几天跑一次，扫描项目、生成 HTML 诊断报告、画出前后架构对比图。</p>
+
+<h2>进阶细节</h2>
+<ul>
+  <li><strong>grill-with-docs</strong>：grill-me 的进化版。grill-me 的罩门是每次开工都要重新摸一遍项目；grill-with-docs 在每场拷问里顺手把专有名词和重要决策写成文件留下来，之后 AI 带着资料来拷问，一开场就能切进重点。Matt 自己更常用这个版本</li>
+  <li>repo 里还藏着三个专门用 AI 写作的 skill（writing-fragments / writing-shape / writing-beats）</li>
+</ul>
+
+<h2>与 Superpowers 的对比</h2>
+<table>
+  <tr><th></th><th>Superpowers</th><th>Matt Pocock skills</th></tr>
+  <tr><td>哲学</td><td>完整接管：写死的九个步骤</td><td>极简主义 + 模组化：一个 skill 只解决一个问题</td></tr>
+  <tr><td>适用时代</td><td>模型不够聪明、容易偏题时的保姆级防呆流程</td><td>模型理解力极强的现在，不再需要填表式防呆</td></tr>
+  <tr><td>流程弹性</td><td>希望你从头走完设计→计划→执行</td><td>从哪步开始、哪步结束完全由你决定</td></tr>
+  <tr><td>一句话</td><td>已经组好的自动化生产线</td><td>随插即用的乐高积木，把主导权交还到你手上</td></tr>
+</table>
+
+<h2>核心洞察：Matt 靠什么驯服 AI？</h2>
+<p>靠的是<strong>非常深厚的软件工程底子</strong>，用在两个地方：① <strong>用在架构上</strong>——把几十年被证明有效的老方法融入 skill，规范 AI 的行为；② <strong>用在与 AI 沟通上</strong>——直接把软件工程专有名词当 prompt，像快退休的老教练给球员的一句话，简单但蕴含几十年经验。</p>
+
+<blockquote>
+  这打破了一个迷思：很多人以为有了 AI 就不需要在自己的领域精进了。但 Matt 证明了——<strong>只有成为专业领域的专家，你才能真正控制好 AI。</strong>他真正开源的从来不是几个 skill，而是在教我们：在 AI 时代，该怎么用你在专业领域积累的思维和语言，去驾驭 AI 这个黑盒子。
+</blockquote>
+
+<footer>
+  skills-learning · reference/video-notes.html ｜
+  <a href="https://www.youtube.com/watch?v=aR97E7aKEgg">▶ 原视频</a> ｜
+  <a href="./MattPocock-skills工作流拆解-grill-me到深模组.md">Markdown 原文</a> ｜
+  二手资料，与 <a href="https://github.com/mattpocock/skills">仓库源码</a> 冲突时以源码为准
+</footer>
+
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

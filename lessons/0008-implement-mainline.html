@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 课 · 主干道（下）：implement——四行字串起全部内功</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 8 课 · 主干道（下）：implement——四行字串起全部内功</h1>
+<p class="lesson-meta">
+  阶段 3 · 工作流主干道 ｜ 预计 10 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/implement/SKILL.md">implement/SKILL.md</a> 是全套 skills 里"编排的极致"：正文四句话，却串起了你学过的全部内功。本课一半讲它，一半带你<strong>俯瞰整条主干道</strong>——这是收官前的全景图。
+</div>
+
+<h2>一、一手源码全文（真的只有四句）</h2>
+
+<pre><code>Implement the work described by the user in the spec or tickets.
+
+Use /tdd where possible, at pre-agreed seams.
+
+Run typechecking regularly, single test files regularly,
+and the full test suite once at the end.
+
+Once done, use /code-review to review the work.
+
+Commit your work to the current branch.</code></pre>
+
+<div class="callout">
+  <span class="label">中文对照</span>
+  <p style="margin:.3rem 0">① 实现用户在规格或票据中描述的工作。</p>
+  <p style="margin:.3rem 0">② 尽可能使用 /tdd，在预先约定的接缝上。</p>
+  <p style="margin:.3rem 0">③ 频繁跑类型检查、频繁跑单个测试文件，最后完整跑一次全量测试套件。</p>
+  <p style="margin:.3rem 0">④ 完成后，用 /code-review 审查工作。</p>
+  <p style="margin:.3rem 0">⑤ 把工作提交到当前分支。</p>
+</div>
+
+<h2>二、逐句看它调用了你学过的什么</h2>
+
+<table>
+  <tr><th>句</th><th>调用的内功</th><th>出自哪课</th></tr>
+  <tr><td>"in the spec or tickets"</td><td>输入必须是 to-spec / to-tickets 的产物——没有规格不开工</td><td>第 7 课</td></tr>
+  <tr><td>"Use /tdd... at pre-agreed seams"</td><td>红绿循环 + 预先约定的接缝（两道行动闸门一次引用）</td><td>第 4、6 课</td></tr>
+  <tr><td>"typecheck regularly... full suite once at the end"</td><td>反馈循环的节奏设计：便宜的反馈（类型检查、单文件测试）高频跑，昂贵的反馈（全量套件）只在最后跑一次</td><td>第 1 课（反馈速率 = 速度上限）</td></tr>
+  <tr><td>"use /code-review"</td><td>双轴审查 + 12 坏味道基线；TDD 循环里欠下的重构债在这里还</td><td>第 5、6 课</td></tr>
+  <tr><td>"Commit to the current branch"</td><td>明确的完成标准（第 2 课）——落点清晰，不多不少</td><td>第 2 课</td></tr>
+</table>
+
+<p>四句话零新概念——所有的"厚"都住在被调用的 skill 里。<strong>implement 本身就是一个深模组</strong>：接口小（四句话），行为大（整条实现纪律）。Matt 把第 4 课的理论用在了 skill 的组织上，第三次了（grill-me、grill-with-docs、implement）。</p>
+
+<h2>三、全景：主干道地图（你已集齐所有零件）</h2>
+
+<pre><code>模糊想法
+   │
+   ▼
+/grill-me 或 /grill-with-docs ······ 拷问出共识（+ 顺手长出 CONTEXT.md / ADR）
+   │
+   ▼
+/to-spec ··························· 共识 → 规格书（六节模板，禁代码，发布到 tracker）
+   │
+   ▼
+/to-tickets ························ 规格书 → 曳光弹票据集（垂直切片 + 阻塞边）
+   │
+   ▼
+/implement（可多 agent 并行打前沿）···· 按票实现：/tdd 红绿循环 → /code-review 双轴审查 → commit
+   │
+   ▼
+/improve-codebase-architecture ····· 日常保养：删除测试大扫除（每隔几天跑一次）</code></pre>
+
+<p>再看一眼 Matt 与大框架的分野：这条主干道<strong>每一站都可以独立进出</strong>——手里已有规格（主管给的、别的 AI 产的），直接从 to-tickets 上道；只想拷问不想开发，grill-me 用完就走。这就是 README 里那句"从哪步开始、哪步结束完全由你决定"。</p>
+
+<h2>四、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · implement 为什么规定"类型检查频繁跑、全量测试套件只在最后跑一次"？</p>
+  <label>因为全量测试不重要，意思一下就行</label>
+  <label data-right="1">反馈按成本分层：便宜的高频，贵的收口</label>
+  <label>因为类型检查能替代大部分测试用例</label>
+  <label>因为全量测试在过程中一定跑不过的</label>
+  <div class="feedback right">✅ 正确。反馈循环的经济学：类型检查和单文件测试秒级出结果——高频跑，让 agent 始终贴着反馈面工作；全量套件分钟级——只在最后收口跑一次，确认无回归。对照第 1 课引言："The rate of feedback is your speed limit."（反馈速率就是你的速度上限。）这套节奏值得原样搬进你自己 Agent 的执行循环。</div>
+  <div class="feedback wrong">关键词：<strong>反馈的成本分层</strong>。便宜的反馈（typecheck、单文件测试，秒级）高频跑；昂贵的反馈（全量套件，分钟级）最后跑一次收口。既保住"反馈速率 = 速度上限"（第 1 课），又不为反馈本身付出过量时间。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · "implement 本身就是一个深模组"——这个说法的依据是什么？</p>
+  <label>它的实现代码很长，功能非常丰富</label>
+  <label>它被调用的次数多，使用频率很高</label>
+  <label data-right="1">接口四句话，背后藏着整条实现纪律</label>
+  <label>它藏在文件夹深处，路径层级很深</label>
+  <div class="feedback right">✅ 正确。按第 4 课定义：深度 = 接口的杠杆。你（调用者）只需学会一句 <code>/implement</code>，就撬动了 TDD 纪律 + 反馈节奏 + 双轴审查 + 提交规范的完整行为链——小接口，大行为。而这些行为的"实现"分散在 tdd、code-review 等被编排的 skill 里（内部零件），不暴露给调用者。</div>
+  <div class="feedback wrong">用第 4 课的尺子量：深度是<strong>接口</strong>的属性。implement 的接口 = 四句话（学习成本极低），撬动的行为 = 整条实现纪律（TDD + 反馈节奏 + 审查 + 提交）。小接口 + 大行为 = 深模组。前两个选项都在拿"实现侧"或"使用侧"的属性说事，和深度定义无关。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 你手里已经有一份主管写好的详细 PRD，想直接开始拆任务。按 Matt 的主干道哲学，正确做法是——</p>
+  <label>必须从头走完：先跑一遍拷问会话</label>
+  <label>必须先用 to-spec 把它重新写一遍</label>
+  <label data-right="1">直接从 to-tickets 上道，往下走就行</label>
+  <label>跳过全部流程，直接 implement 开工</label>
+  <div class="feedback right">✅ 正确。README 原话：手上有份规格（自己写的/主管给的/别的 AI 产的）就能直接跳到 to-tickets。每站独立进出正是与 Superpowers 式"绑死九步"的核心区别。（直接 implement 则跳过头了：没有垂直切片和阻塞边，一整份 PRD 塞不进一个 context window——第 7 课 Q2 的约束还在。）</div>
+  <div class="feedback wrong">"小而模组化"的红利就在这：每站可独立进出，有规格就从 to-tickets 上道，不必重走上游（重新拷问/重写规格是在给流程上枷锁——Matt 批评大框架的正是这个）。但也别跳过 to-tickets 直接 implement：整份 PRD 塞不进一个 context window，垂直切片和阻塞边是并行与保绿的前提。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  主干道全线贯通。你现在能把任何一个模糊想法，沿着"拷问 → 规格 → 票据 → 实现 → 审查"走成可交付的代码——并且知道每一站背后的纪律为什么长那样。
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，5 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/implement/SKILL.md">implement/SKILL.md</a>（16 行）+ 回头再读一遍 <a href="https://github.com/mattpocock/skills/blob/main/README.md">README</a> 的 Reference 一节——现在你能看懂每一行了。</li>
+  <li><strong>下一课（最后一课）</strong>：第 9 课《writing-great-skills：写出你自己的 skill》——终极检验。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 8 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

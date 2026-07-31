@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 课 · writing-great-skills：写出你自己的 skill</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 9 课 · writing-great-skills：写出你自己的 skill</h1>
+<p class="lesson-meta">
+  阶段 4 · 终极检验 ｜ 预计 20 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  <a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/writing-great-skills/SKILL.md">writing-great-skills/SKILL.md</a> 的开篇一句就是全课总纲（英中对照）：<br>
+  <em>"A skill exists to wrangle determinism out of a stochastic system. <strong>Predictability</strong> is the root virtue; every lever below serves it."</em><br>
+  （中文：skill 的存在意义，是从一个随机系统里驯出确定性。<strong>可预测性</strong>是根本美德——下面所有杠杆都为它服务。注意：可预测 = 每次走同样的<em>过程</em>，不是产出同样的结果。）
+  对你这个 Agent 工程师来说，这一课是全课程的现金兑付点：这些原则每一条都能直接用于你的 system prompt / tool 描述设计。
+</div>
+
+<h2>一、调用方式的经济学：两种成本的交换</h2>
+
+<p>第 2 课见过 user-invoked / model-invoked 之分，这里给出背后的成本模型：</p>
+
+<table>
+  <tr><th></th><th>Model-invoked 模型可调用</th><th>User-invoked 用户调用</th></tr>
+  <tr><td>机制</td><td>不加 <code>disable-model-invocation</code>，description 写给模型看（富触发词）</td><td>加 <code>disable-model-invocation: true</code>，description 写给人看（一行摘要）</td></tr>
+  <tr><td>付出的成本</td><td><strong>Context load 上下文负担</strong>：description 每一轮都躺在窗口里烧 token</td><td><strong>Cognitive load 认知负担</strong>：<em>你</em>得记得它存在</td></tr>
+  <tr><td>选择标准</td><td>只在"agent 必须能自己够到它，或别的 skill 要调它"时才选</td><td>只靠手敲触发的，一律选这个，省下 context</td></tr>
+</table>
+
+<p>当 user-invoked skill 多到记不住——解药是 <strong>router skill（路由 skill）</strong>：一个 skill 专门列出其它 skill 和何时用哪个（仓库里的 <code>ask-matt</code> 就是）。这是"认知负担也要有人管理"的工程化。</p>
+
+<h2>二、信息层级：三层阶梯 + 渐进披露</h2>
+
+<p>skill 内容分两种——<strong>steps（步骤）</strong>和 <strong>reference（参考）</strong>，放在一个三层阶梯上：</p>
+
+<ol>
+  <li><strong>In-skill step</strong>：SKILL.md 里的有序动作。每步以<strong>完成标准</strong>收尾——必须<em>可检查</em>（能分清做完/没做完）且必要时<em>穷尽</em>（"每个改过的 model 都已核对"而非"产出一份变更清单"）——模糊的完成标准会招来<strong>premature completion（过早收工）</strong></li>
+  <li><strong>In-skill reference</strong>：SKILL.md 里按需查阅的定义/规则（12 坏味道就是典型的"平铺参考"）</li>
+  <li><strong>External reference</strong>：推到单独文件里，靠 <strong>context pointer（上下文指针）</strong>按需加载（如 GLOSSARY.md、tests.md）</li>
+</ol>
+
+<blockquote>
+  "Push too little down and the top bloats; push too much and you hide material the agent actually needs. That tension is the whole decision."<br>
+  （中文：下推太少，顶层臃肿；下推太多，把 agent 真正需要的材料藏没了。这份张力就是全部的决策所在。）
+</blockquote>
+
+<p>判断该披露什么的最干净标准是<strong>branch（分支）</strong>：所有分支都需要的内联；只有部分分支才走到的，推到指针后面。</p>
+
+<h2>三、修剪（Pruning）：三连招</h2>
+
+<ol>
+  <li><strong>单一真相源</strong>：一个含义只住一个权威位置，改行为=改一处（你的 toc-data.js 正是这条）</li>
+  <li><strong>逐行查相关性</strong>：这行还和 skill 干的事有关吗？</li>
+  <li><strong>逐句猎杀 no-op</strong>：no-op = 模型默认就会做的话（"be thorough"）——白付 token 说了个寂寞。测试标准：<em>这句话相对默认行为改变了什么？</em>没改变就整句删掉，不要缩写</li>
+</ol>
+
+<h2>四、Leading words（指引词）：全套课程的题眼</h2>
+
+<blockquote>
+  "A leading word is a compact concept already living in the model's pretraining that the agent thinks with while running the skill."<br>
+  （中文：指引词是一个早已活在模型预训练里的紧凑概念，agent 执行 skill 时用它来思考。）
+</blockquote>
+
+<p>它对可预测性的贡献是双份的：正文里锚定<strong>执行</strong>（同一个词每次唤起同一片行为），description 里锚定<strong>调用</strong>（你的 prompt/文档/代码里也用同一个词，agent 触发更可靠）。源码给的两个改写实例：</p>
+
+<ul>
+  <li>"fast, deterministic, low-overhead"（快、确定、低开销）→ 一个词 <strong><em>tight</em></strong>（a tight loop）</li>
+  <li>"a loop you believe in"（一个你信得过的循环）→ 一个词 <strong><em>red</em></strong>（循环在 bug 上变红，或者不变红——把模糊的门槛变成二元可观测状态）</li>
+</ul>
+
+<p>回望整套课程，你收集的指引词已经是一支军队：<em>grill、tracer bullet、seam、deep module、deletion test、Data Clumps、expand–contract、red-green...</em>——每个词都是一次"百字说明 → 单 token"的压缩。</p>
+
+<h2>五、六种失败模式（写 skill 的排障手册）</h2>
+
+<table>
+  <tr><th>失败模式</th><th>症状</th><th>解药</th></tr>
+  <tr><td><strong>Premature completion</strong> 过早收工</td><td>步骤没真做完就滑向"完成了"</td><td>先磨利完成标准（便宜）；实在不行才拆分隐藏后续步骤</td></tr>
+  <tr><td><strong>Duplication</strong> 重复</td><td>同一含义住在多处</td><td>合并回单一真相源</td></tr>
+  <tr><td><strong>Sediment</strong> 沉积</td><td>过期层层淤积（加安全、删危险的心理让它成为默认命运）</td><td>定期修剪纪律</td></tr>
+  <tr><td><strong>Sprawl</strong> 蔓生</td><td>每行都有用但整体太长</td><td>阶梯：参考下推、按分支拆分</td></tr>
+  <tr><td><strong>No-op</strong> 空指令</td><td>说了等于没说（"be thorough"）</td><td>换更强的指引词（"relentless"），而不是换技巧</td></tr>
+  <tr><td><strong>Negation</strong> 负面指令</td><td>"别想大象"反而让大象更活跃</td><td>正着说目标行为；万不得已的禁令必须配上"该做什么"</td></tr>
+</table>
+
+<div class="callout">
+  <span class="label">Agent 工程师视角（最后一次）</span>
+  把"skill"三个字换成"system prompt"，这张表就是你的日常排障手册。
+  尤其是 <strong>Negation</strong>：你写过多少条"不要……不要……不要……"的 prompt？源码的处方：说目标行为，让被禁止的行为根本不被提及。
+</div>
+
+<h2>六、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 你写了个 skill，正文里有一句"务必认真仔细地检查代码"。按本课诊断，这句话是——</p>
+  <label>好指令，明确强调了质量的要求</label>
+  <label>负面指令，应该改成正向的表述</label>
+  <label data-right="1">空指令，模型默认已是这么做的</label>
+  <label>重复问题，和其他句子意思相同</label>
+  <div class="feedback right">✅ 正确。No-op 测试："这句话相对默认行为改变了什么？"——模型默认就会"认真检查"，这句白烧 token。解药不是删了完事，而是问：我真正想要的行为是什么？如果是"逐条对照坏味道清单"，那就写清单 + 穷尽性完成标准（"12 条全部核对"）——从空话变成可检查的行为。</div>
+  <div class="feedback wrong">用 no-op 测试量它："务必认真仔细"改变了模型的默认行为吗？——没有，模型默认就 thorough-ish。这是 No-op（空指令），白付 token。修复方向：要么换强指引词（relentless），要么写成可检查的完成标准（"12 条坏味道全部核对完毕"）。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · 你的 skill 只会被你手敲触发，从不需要 agent 自动调用。但你还是写了一段富触发词的 description（"Use when the user wants..."）。这个决策的问题是——</p>
+  <label>没有问题，描述写得详细一点更保险</label>
+  <label data-right="1">白付上下文负担，该改成用户调用式</label>
+  <label>描述写法错误，触发词应该再多一些</label>
+  <label>应该删除全部描述，让文件保持精简</label>
+  <div class="feedback right">✅ 正确。成本模型：model-invoked 的 description 每轮都躺在 context window 里烧 token（context load）。只靠手敲触发的 skill，应设 <code>disable-model-invocation: true</code>，description 改成给人看的一行摘要——"pay no context load"（不付上下文负担）。这也是你设计 Agent tool 清单的同款决策：每个 tool description 都在每轮烧 token，不需要模型自主选择的能力就别注册成 tool。</div>
+  <div class="feedback wrong">看成本模型：description 的富触发词是给<strong>模型自动调用</strong>用的，代价是每轮 context load。既然只手敲触发，这份 token 是白烧的——应设 <code>disable-model-invocation: true</code>，description 换成人看的一行摘要。注意不是"删除描述"：user-invoked 仍需要一行给人看的摘要（否则你自己都忘了它是干嘛的——cognitive load 无人买单）。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 你的 Agent system prompt 里有一条："不要输出 JSON 以外的任何内容，不要加解释，不要用 markdown。"按失败模式表，更好的写法是——</p>
+  <label>加重语气：绝对严禁输出任何非 JSON</label>
+  <label>拆成三条独立禁令，方便逐条排查</label>
+  <label data-right="1">正着说：仅输出一个合法 JSON 对象</label>
+  <label>保持原样：三个禁令已经很完整了</label>
+  <div class="feedback right">✅ 正确。Negation 失败模式："don't think of an elephant"——禁令把被禁的东西送进了注意力。正向表述"你的完整输出是一个合法的 JSON 对象，以 { 开始、以 } 结束"，解释和 markdown 根本没被提及、也就没被激活。源码的保留条款：实在无法正向表述的硬护栏才留禁令，且必须配上"该做什么"。</div>
+  <div class="feedback wrong">这是 Negation（负面指令）失败模式：每条"不要 X"都在把 X 送进模型的注意力（"别想大象"效应）。处方："Prompt the positive"——正着说目标：仅输出一个合法 JSON 对象（以 { 开始、} 结束）。被禁的行为不被提及，就不会被激活。加重语气和拆分禁令都是在同一个坑里挖深。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q4 · 全课程收官题 · 视频里说 Matt "真正开源的不是几个 skill"。学完 9 课，下面哪句话最准确地说出了这套 skills 的底层方法论？</p>
+  <label>写好每一段提示词，模型就更听话</label>
+  <label>流程管控越严格，AI 就越难跑偏了</label>
+  <label data-right="1">用行业验证过的纪律与词汇驯服随机</label>
+  <label>模型足够强大之后，架构就不重要了</label>
+  <div class="feedback right">✅ 正确，毕业了。整套体系 = 几十年被验证的工程纪律（深模组/坏味道/TDD/DDD）+ 预训练里现成的指引词，压缩成小而可组合的模组，从随机系统里驯出<strong>过程的可预测性</strong>——同时把每个决策点都留给人类。第二个选项恰是 Matt 反对的大框架路线；第四个是第 1 课就否掉的迷思（基本功 matter more than ever）。</div>
+  <div class="feedback wrong">再品一次总纲："wrangle determinism out of a stochastic system"——手段不是更严的流程（那是 Spec-Kit 路线，Matt 明确反对），也不只是"提示词写得好"（那只是表层），而是把<strong>行业验证过的工程纪律</strong>用<strong>预训练里现成的词汇</strong>压缩进小模组。这是"只有领域专家才能真正控制 AI"的完整含义。</div>
+</div>
+
+<h2>七、终极检验（毕业设计，当场可做）</h2>
+
+<div class="win">
+  <span class="label">毕业设计 · 写出你的第一个 skill</span>
+  <p>从你的日常工作里挑一个反复出现的流程（比如：排查线上 Agent 报错、给新 Agent 写 tool 定义、review 同事的 prompt……），写一个 SKILL.md，要求：</p>
+  <ol>
+    <li>正文 ≤ 15 行（修剪三连招伺候：单一真相源 / 相关性 / 猎杀 no-op）</li>
+    <li>正确选择调用方式并说明为什么（context load vs cognitive load）</li>
+    <li>至少用 1 个指引词（可以从课程里学的词汇军队里挑）</li>
+    <li>每个步骤有可检查的完成标准；通篇正向表述，禁令不超过 1 条</li>
+  </ol>
+  <p>写完直接粘到对话框，我按 writing-great-skills 的标准 + 六种失败模式给你逐行审查。<strong>这是全课程的毕业答辩，随时来交。</strong></p>
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，15 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/writing-great-skills/SKILL.md">writing-great-skills/SKILL.md</a> 全文 + 同目录 <code>GLOSSARY.md</code>（本课所有粗体术语的完整定义——它本身就是"渐进披露"的活例子）。</li>
+  <li><strong>课程之外</strong>：仓库里还有 wayfinder、triage、prototype、diagnosing-bugs 等进阶 skill 没进主线——你已经有了独立读懂它们的全部装备。挑感兴趣的读，有问题随时回来。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 9 课（完）｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>｜
+  🎓 课程主线至此全部交付
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

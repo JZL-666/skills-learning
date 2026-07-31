@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 4 课 · 深模组：一扇小门，一栋大房子</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>第 4 课 · 深模组：一扇小门，一栋大房子</h1>
+<p class="lesson-meta">
+  阶段 2 · 工程内功 ｜ 预计 15 分钟 ｜
+  使命：驾驭 AI Agent 的工程内功
+</p>
+
+<nav id="course-nav"></nav>
+
+<div class="callout">
+  <span class="label">本课只教一件事</span>
+  <strong>深度（Depth）是接口的属性，不是实现的属性。</strong>
+  搞懂这一句 + 会用"删除测试"，你就掌握了防御失控模式四（泥球化）的核心武器。
+  本课教材：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md">codebase-design/SKILL.md</a>（源自 Ousterhout《A Philosophy of Software Design》，但 Matt 做了一处重要修正，见第四节）。
+</div>
+
+<h2>一、深 vs 浅：源码里的两张图</h2>
+
+<pre><code>深模组（追求）                      浅模组（避免）
+┌─────────────────┐        ┌───────────────────────────────┐
+│  Small Interface │        │        Large Interface        │
+│  小接口：方法少、参数简单  │        │  大接口：方法多、参数复杂        │
+├─────────────────┤        ├───────────────────────────────┤
+│                 │        │  Thin Implementation          │
+│  Deep           │        │  薄实现：只是层层转发            │
+│  Implementation │        └───────────────────────────────┘
+│  深实现：复杂逻辑全部藏在门后 │
+│                 │
+└─────────────────┘</code></pre>
+
+<p>源码给出的定义（英中对照）：</p>
+
+<blockquote>
+  "A module is <strong>deep</strong> when a large amount of behaviour sits behind a small interface, <strong>shallow</strong> when the interface is nearly as complex as the implementation."<br>
+  （中文：当大量行为藏在一个小接口背后时，模组是<strong>深的</strong>；当接口几乎和实现一样复杂时，模组是<strong>浅的</strong>。）
+</blockquote>
+
+<p>设计接口时问自己三个问题（源码原文直译）：能不能<strong>减少方法数</strong>？能不能<strong>简化参数</strong>？能不能<strong>把更多复杂度藏进去</strong>？</p>
+
+<h2>二、六个必须精确使用的词</h2>
+
+<p>这个 skill 的本质是一份<strong>设计讨论专用的 CONTEXT.md</strong>（第 3 课的共享语言，用在了设计领域）。源码开头就警告：<em>"Use these terms exactly — don't substitute"</em>（精确使用这些词——不许用别的词代替），连 <code>_Avoid_</code> 黑名单都配好了：</p>
+
+<table>
+  <tr><th>术语</th><th>定义</th><th>黑名单（_Avoid_）</th></tr>
+  <tr><td><strong>Module 模组</strong></td><td>任何"有接口 + 有实现"的东西——刻意不限尺寸：函数、类、包都算</td><td>unit、component、service</td></tr>
+  <tr><td><strong>Interface 接口</strong></td><td>调用者要正确使用模组<strong>必须知道的一切</strong>：类型签名 + 不变式 + 调用顺序约束 + 错误模式 + 性能特征</td><td>API、signature（太窄，只指类型层面）</td></tr>
+  <tr><td><strong>Seam 接缝</strong></td><td>接口所在的<strong>位置</strong>——"在哪开门"和"门后藏什么"是两个独立的设计决策（术语来自 Michael Feathers）</td><td>boundary（和 DDD 的 bounded context 撞名）</td></tr>
+  <tr><td><strong>Adapter 适配器</strong></td><td>在某个接缝处满足接口的具体实现——描述的是<strong>角色</strong>（填哪个槽），不是内容物</td><td>——</td></tr>
+  <tr><td><strong>Leverage 杠杆</strong></td><td>深度给<strong>调用者</strong>的回报：学一份小接口，撬动一大堆能力；一份实现在 N 个调用点 + M 个测试里反复回本</td><td>——</td></tr>
+  <tr><td><strong>Locality 局部性</strong></td><td>深度给<strong>维护者</strong>的回报：变更、bug、知识、验证都集中在一处——修一次，处处生效</td><td>——</td></tr>
+</table>
+
+<div class="callout">
+  <span class="label">Agent 工程师视角</span>
+  Locality（局部性）正是第 1 课那个论断的技术根据：<strong>AI 的 context window 有限</strong>。
+  浅模组逼 AI 在十几个文件间跳转拼凑逻辑，超出记忆范围就开始瞎猜；
+  深模组把来龙去脉集中在一个视野里，AI 可以精准打击。
+  <em>深模组不只是给人类的架构美学——它是 AI 时代的性能优化。</em>
+  同样的道理也适用于你设计的 Agent：给它的工具（tool）接口越小越深，Agent 的调用决策就越不容易出错。
+</div>
+
+<h2>三、删除测试（The Deletion Test）——判断深浅的一把刀</h2>
+
+<blockquote>
+  "Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep."<br>
+  （中文：想象把这个模组直接删掉。如果复杂度<strong>消失了</strong>，它本来就只是个二传手；如果复杂度<strong>在 N 个调用方身上重新长出来</strong>，说明它一直在干实事。）
+</blockquote>
+
+<p>这就是视频笔记里 improve-codebase-architecture 做"架构大扫除"用的那把刀。两个走向：</p>
+<ul>
+  <li>删掉后天下大乱、隐藏的复杂逻辑全炸回调用方 → <strong>深模组，留下</strong></li>
+  <li>删掉后代码反而清爽、原本跳两个文件的现在集中一处 → <strong>假装做事的空壳，清理</strong></li>
+</ul>
+
+<h2>四、三条容易记错的原则（含 Matt 对经典的修正）</h2>
+
+<ol>
+  <li><strong>深度是接口的属性，不是实现的属性。</strong>深模组内部完全可以由小的、可替换的零件组成——只要它们不暴露在接口上。模组可以有<strong>内部接缝</strong>（自己的测试用）+ <strong>外部接缝</strong>（接口所在处）。</li>
+  <li><strong>一个适配器 = 假想的接缝；两个适配器 = 真实的接缝。</strong>原文：<em>"Don't introduce a seam unless something actually varies across it."</em>（中文：除非真的有东西会在这条缝两侧变化，否则别引入接缝。）——这是对"为了架构而架构"的当头一棒：只有一个实现却抽了三层接口，就是在给 AI 和人类同时增加导航成本。注意：测试用的内存 fake 也算一个货真价实的适配器。</li>
+  <li><strong>Matt 对 Ousterhout 的修正</strong>——源码"Rejected framings（被否决的定义）"一节明确拒绝了原著"深度 = 实现行数 ÷ 接口行数"的定义，理由：<em>"rewards padding the implementation"</em>（中文：这会奖励往实现里灌水）。Matt 改用<strong>深度 = 杠杆</strong>：每学一单位接口，能换到多少行为。这提醒你：读经典也要带脑子，连大神都在修正大神。</li>
+</ol>
+
+<h2>五、为可测试性而设计（两条签名级规则）</h2>
+
+<pre><code>// 规则一：接受依赖，不要自己制造依赖
+function processOrder(order, paymentGateway) {}   // ✅ 可测试（网关可注入假的）
+function processOrder(order) {
+  const gateway = new StripeGateway();            // ❌ 难测试（写死了真网关）
+}
+
+// 规则二：返回结果，不要制造副作用
+function calculateDiscount(cart): Discount {}     // ✅ 可测试（看返回值即可断言）
+function applyDiscount(cart): void {
+  cart.total -= discount;                         // ❌ 难测试（要检查被改的对象）
+}</code></pre>
+
+<p>再加第三条：<strong>接口面积小</strong>——方法越少，要写的测试越少；参数越少，测试搭台越简单。三条合起来：<em>接口就是测试面</em>（The interface is the test surface）——如果你想绕过接口去测内部，模组八成是长错形状了。</p>
+
+<h2>六、随堂测验</h2>
+
+<div class="quiz">
+  <p class="q">Q1 · 代码库里有个 <code>UserService</code>，它的 7 个方法全都是原样转发给 <code>UserRepository</code> 的同名方法（参数不变、无附加逻辑）。用删除测试判断，它是——</p>
+  <label>深模组：它隔离了数据层的实现细节</label>
+  <label>深模组：七个方法说明它行为很丰富</label>
+  <label data-right="1">浅模组：删掉后调用方直接用仓库更清爽</label>
+  <label>浅模组：但为了架构分层还是应该保留</label>
+  <div class="feedback right">✅ 正确。删除测试：删掉它，复杂度没有炸回调用方（调用方只是改叫 <code>userRepository.xxx()</code>，代码反而少一层）——它没隐藏任何东西，是纯二传手。注意最后一个选项的陷阱："为了分层而保留"正是"一个适配器 = 假想接缝"批判的行为。</div>
+  <div class="feedback wrong">用删除测试走一遍：删掉 <code>UserService</code>，调用方直接调 <code>UserRepository</code>，参数一模一样，没有任何复杂度重新长出来——复杂度"消失"了，说明它是 pass-through（二传手）。方法多不等于深："7 个方法"是接口大，接口大而实现薄恰恰是浅模组的定义。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q2 · 某模组内部由 12 个小类组成，互相之间还有依赖注入，但对外只暴露一个 <code>processCheckout(cart)</code> 函数。按本课定义，这个模组——</p>
+  <label>是浅模组，因为内部零件太多太散了</label>
+  <label data-right="1">是深模组，深度只看接口不看实现内部</label>
+  <label>无法判断，需要先数一数代码的行数</label>
+  <label>是浅模组，依赖注入让它易散架难懂</label>
+  <div class="feedback right">✅ 正确。原则一：深度是<strong>接口</strong>的属性。调用者只需学 1 个函数就撬动整个结账流程（杠杆极高）——内部 12 个小类是"内部接缝"，不暴露就不算接口复杂度。第三个选项是陷阱：数行数正是被 Matt 否决的 Ousterhout 式定义（"奖励灌水"）。</div>
+  <div class="feedback wrong">关键：深度是接口的属性，不是实现的属性。对外只有 1 个函数 = 小接口；藏着 12 个类的协作 = 大量行为。小接口 + 大行为 = 深模组。内部零件多不但无罪，源码还明确说深模组内部就该可以由小的可替换零件组成（内部接缝）。数行数则是被"Rejected framings"否决的定义。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q3 · 项目只用 PostgreSQL，短期没有换库计划，测试也直接连测试数据库（不用内存 fake）。同事提议："先抽一个 <code>IDatabase</code> 接口层，万一以后要换呢？"按源码原则，正确回应是——</p>
+  <label>同意，提前抽象是良好的架构远见</label>
+  <label>同意，但接口先只定义一半的方法</label>
+  <label data-right="1">反对，没有东西在这条缝两侧变化</label>
+  <label>反对，接口这种东西任何时候都别抽</label>
+  <div class="feedback right">✅ 正确。"One adapter means a hypothetical seam."（一个适配器 = 假想接缝。）现在只有 Postgres 一个适配器，测试也不经这条缝替换——没有任何东西 varies（变化），引入接缝只会白付导航成本。注意最后一个选项过度了：如果哪天引入内存 fake 跑测试，那就是货真价实的第二个适配器，接缝立刻转正。</div>
+  <div class="feedback wrong">源码原话："Don't introduce a seam unless something actually varies across it."（除非真有东西在缝两侧变化，否则别引入接缝。）现在只有一个适配器（Postgres），测试也不替换——缝是假想的。但也别走到"永远不抽"的极端：一旦出现第二个适配器（比如测试用内存 fake），接缝就是真实的了。</div>
+</div>
+
+<div class="quiz">
+  <p class="q">Q4 · 下面哪个函数签名同时符合"可测试性"两条规则（接受依赖 + 返回结果）？</p>
+  <label><code>sendInvoice(order): void</code>，内部 new 一个邮件客户端并发送</label>
+  <label><code>sendInvoice(order, mailer): void</code>，调用 mailer 发送后返回空</label>
+  <label data-right="1"><code>renderInvoice(order, taxRules): Invoice</code>，纯计算并返回发票</label>
+  <label><code>renderInvoice(order): Invoice</code>，内部读取全局的税率配置表</label>
+  <div class="feedback right">✅ 正确。依赖（taxRules）从参数进来（规则一），结果（Invoice）从返回值出去（规则二）——测试时喂假税率、断言返回值，不需要 mock 任何副作用。第二个选项只满足规则一（mailer 注入了，但返回 void、靠副作用干活）；第四个只满足规则二（有返回值，但依赖是偷偷从全局拿的）。</div>
+  <div class="feedback wrong">逐一体检：选项一两条全违反（自造依赖 + 副作用）；选项二只过规则一（依赖注入✓，但 void + 副作用✗）；选项四只过规则二（返回结果✓，但全局配置是隐藏依赖✗）。只有 <code>renderInvoice(order, taxRules): Invoice</code> 两条全过：依赖走参数，结果走返回值。</div>
+</div>
+
+<div class="win">
+  <span class="label">本课小胜利</span>
+  你现在有了一把随身携带的刀（删除测试）和一句心法（深度是接口的属性）。
+  下次看任何代码——包括 AI 刚生成的——先问：这个模组删掉会怎样？
+</div>
+
+<h2>课后</h2>
+<ul>
+  <li><strong>主要阅读（一手，15 分钟）</strong>：<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md">codebase-design/SKILL.md</a> 全文——重点读你还没见过的 "Relationships" 一节（六个术语如何互相咬合成一个模型）。</li>
+  <li><strong>延伸（可选，不阻塞）</strong>：同目录的 <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md">DESIGN-IT-TWICE.md</a>——"同一个接口让多个子代理各自设计一遍再对比"，对你编排多 Agent 有直接借鉴价值。</li>
+  <li><strong>下一课预告</strong>：《12 种代码坏味道——code-review 的检查清单》，你已经亲手抓过其中一种（Shotgun Surgery，导航系统那次）。</li>
+  <li><strong>随时提问</strong>：Interface 的定义（"调用者必须知道的一切"）比多数人想的宽——不理解为什么"性能特征"也算接口，来问我。</li>
+</ul>
+
+<footer>
+  skills-learning · 第 4 课 ｜ 教材：<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>
+</footer>
+
+<script src="../assets/quiz.js"></script>
+<script src="../assets/toc-data.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>
