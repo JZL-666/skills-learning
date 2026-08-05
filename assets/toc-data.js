@@ -15,4 +15,5 @@ window.COURSE_REFS = [
   { file: "glossary.html", title: "术语表（Glossary）" },
   { file: "video-notes.html", title: "📺 视频笔记：700 万人下载的 /grill-me（Gary Chen 拆解）" },
   { url: "https://www.youtube.com/watch?v=aR97E7aKEgg", title: "▶ 原视频（YouTube，约 20 分钟）" },
+  { file: "skills-manual.html", title: "📚 Skills 说明书 · mattpocock/skills 项目全集" },
 ];
